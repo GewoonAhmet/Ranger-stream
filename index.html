@@ -2,124 +2,139 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuvio Stream</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ranger</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e50914">
     <style>
         :root {
             --bg-color: #0b0b0b;
             --primary: #e50914;
         }
 
-        body { background: var(--bg-color); color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; }
+        html, body { background: var(--bg-color); color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; display: flex; }
         .hidden { display: none !important; }
 
         /* Login Scherm */
-        #auth-container { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; background: var(--bg-color); position: absolute; z-index: 2000; }
-        .auth-box { background: #141414; padding: 40px; border-radius: 12px; width: 350px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #auth-container { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; background: var(--bg-color); position: fixed; inset: 0; z-index: 99999; box-sizing: border-box; padding: 20px; }
+        .auth-box { background: #141414; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .auth-box h2 { color: var(--primary); margin-top: 0; margin-bottom: 20px; text-align: center; letter-spacing: 1px; }
-        .auth-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; }
-        .auth-box button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px; transition: opacity 0.2s; }
-        .auth-box button:hover { opacity: 0.9; }
+        .auth-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .auth-box button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 15px; }
 
-        /* Navigatie Container (Dock) */
-        nav { z-index: 1000; position: fixed; display: flex; align-items: center; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        /* Profiel Kiezer & PIN Overlay */
+        #profile-selector, #pin-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; inset: 0; background: #0b0b0b; z-index: 99998; }
+        .profiles-grid { display: flex; gap: 20px; margin-top: 20px; }
+        .profile-card { text-align: center; cursor: pointer; background: #141414; padding: 15px; border-radius: 10px; border: 2px solid transparent; transition: 0.2s; }
+        .profile-card:hover, .profile-card:focus { border-color: var(--primary); transform: scale(1.05); outline: none; }
+        .profile-card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
         
-        body.nav-top nav { top: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 8px 20px; gap: 20px; height: 55px; }
-        body.nav-bottom nav { bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 8px 20px; gap: 20px; height: 55px; }
-        body.nav-left nav { top: 0; left: 0; height: 100vh; width: 75px; flex-direction: column; padding-top: 25px; gap: 20px; border-right: 1px solid rgba(255,255,255,0.1); border-radius: 0; }
+        .pin-box { background: #141414; padding: 30px; border-radius: 12px; text-align: center; border: 1px solid #333; max-width: 300px; width: 100%; }
+        .pin-input { font-size: 24px; letter-spacing: 8px; text-align: center; width: 150px; padding: 8px; background: #1f1f1f; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 15px; }
 
-        .nav-item { display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s, color 0.2s; font-size: 13px; font-weight: bold; background: none; border: none; color: #fff; }
-        .nav-item:hover, .nav-item.active { opacity: 1; color: var(--primary); }
+        /* Navigatie Container */
+        nav { z-index: 1000; position: fixed; display: flex; align-items: center; background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        body.nav-top nav { top: 10px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 6px 15px; gap: 15px; height: 50px; }
+        body.nav-bottom nav { bottom: 10px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 6px 15px; gap: 15px; height: 50px; }
+        body.nav-left nav { top: 0; left: 0; height: 100vh; width: 70px; flex-direction: column; padding-top: 20px; gap: 15px; border-right: 1px solid rgba(255,255,255,0.1); border-radius: 0; }
+
+        .nav-item { display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: 0.7; font-size: 12px; font-weight: bold; background: none; border: none; color: #fff; }
+        .nav-item:hover, .nav-item.active, .nav-item:focus { opacity: 1; color: var(--primary); outline: 2px solid var(--primary); outline-offset: 2px; }
         .nav-icon { width: 20px; height: 20px; }
-        .profile-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
+        .profile-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
 
         /* Hoofdinhoud */
-        main { flex: 1; overflow-y: auto; height: 100vh; width: 100%; position: relative; box-sizing: border-box; }
-        body.nav-top main { padding-top: 70px; }
-        body.nav-bottom main { padding-bottom: 70px; }
-        body.nav-left main { padding-left: 75px; }
+        main { flex: 1; overflow-y: auto; height: 100vh; width: 100%; position: relative; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+        body.nav-top main { padding-top: 65px; }
+        body.nav-bottom main { padding-bottom: 65px; }
+        body.nav-left main { padding-left: 70px; }
 
         /* Hero Banner */
-        .hero { position: relative; width: 100%; height: 55vh; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 40px; box-sizing: border-box; }
-        .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,11,11,0.1) 0%, rgba(11,11,11,0.4) 60%, var(--bg-color) 100%); }
-        .hero-content { position: relative; z-index: 2; max-width: 600px; }
-        .hero-title { font-size: 38px; font-weight: bold; margin: 0 0 10px 0; color: #fff; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .hero-genres { font-size: 13px; color: #ccc; margin-bottom: 12px; text-shadow: 0 1px 5px rgba(0,0,0,0.8); }
-        .hero-desc { font-size: 14px; line-height: 1.4; color: #ddd; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 5px rgba(0,0,0,0.8); }
-        .hero-btn { background: #fff; color: #000; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
-        .hero-btn:hover { background: #e0e0e0; }
+        .hero { position: relative; width: 100%; height: 45vh; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box; }
+        .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,11,11,0.1) 0%, rgba(11,11,11,0.5) 60%, var(--bg-color) 100%); }
+        .hero-content { position: relative; z-index: 2; max-width: 100%; }
+        .hero-title { font-size: 26px; font-weight: bold; margin: 0 0 8px 0; color: #fff; text-transform: uppercase; }
+        .hero-genres { font-size: 12px; color: #ccc; margin-bottom: 8px; }
+        .hero-desc { font-size: 13px; line-height: 1.3; color: #ddd; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-btn { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+        .hero-btn:focus { outline: 2px solid var(--primary); }
 
         /* Streamingdiensten Bar */
-        .provider-bar { display: flex; gap: 15px; padding: 25px 40px 0 40px; align-items: center; flex-wrap: wrap; }
-        .provider-badge { background: #141414; border: 2px solid #333; color: #fff; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.2s; }
-        .provider-badge.active { border-color: var(--primary); background: #1f1f1f; }
+        .provider-bar { display: flex; gap: 10px; padding: 15px 20px 0 20px; align-items: center; overflow-x: auto; }
+        .provider-bar::-webkit-scrollbar { display: none; }
+        .provider-badge { background: #141414; border: 2px solid #333; color: #fff; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 12px; flex-shrink: 0; }
+        .provider-badge.active, .provider-badge:focus { border-color: var(--primary); background: #1f1f1f; outline: none; }
 
         /* Filters & Zoekbalk */
-        .filter-bar { display: flex; gap: 15px; padding: 15px 40px 0 40px; align-items: center; flex-wrap: wrap; }
-        .filter-select, .search-input { background: #141414; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; outline: none; }
-        .search-input { width: 220px; cursor: text; }
-        .search-input:focus, .filter-select:focus { border-color: var(--primary); }
+        .filter-bar { display: flex; gap: 10px; padding: 12px 20px 0 20px; align-items: center; flex-wrap: wrap; }
+        .filter-select, .search-input { background: #141414; color: #fff; border: 1px solid #333; padding: 8px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+        .filter-select:focus, .search-input:focus { border-color: var(--primary); }
+        .search-input { width: 100%; max-width: 220px; }
 
-        /* Rij / Carrousel Secties */
-        .section-title { font-size: 18px; font-weight: bold; margin: 25px 0 15px 40px; letter-spacing: 0.5px; }
-        .row-container { display: flex; gap: 15px; overflow-x: auto; padding: 0 40px 20px 40px; scroll-behavior: smooth; }
+        /* Carrousel Secties */
+        .section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px 20px; }
+        .row-container { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 15px 20px; scroll-behavior: smooth; }
         .row-container::-webkit-scrollbar { display: none; }
 
         /* Poster Styling */
-        .card { min-width: 175px; width: 175px; cursor: pointer; background: #141414; border-radius: 8px; overflow: hidden; flex-shrink: 0; transition: transform 0.2s, box-shadow 0.2s; position: relative; border: 1px solid rgba(255,255,255,0.05); }
-        .card:hover { transform: scale(1.06); box-shadow: 0 10px 20px rgba(0,0,0,0.6); z-index: 10; }
-        .card img { width: 100%; height: 260px; object-fit: cover; display: block; }
-        .card-info { padding: 10px; }
-        .card-title { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card { min-width: 140px; width: 140px; cursor: pointer; background: #141414; border-radius: 6px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; }
+        .card:hover, .card:focus { transform: scale(1.05); border-color: var(--primary); outline: none; }
+        .card img { width: 100%; height: 210px; object-fit: cover; display: block; }
+        .card-info { padding: 8px; }
+        .card-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Modals */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .modal-box { background: #141414; padding: 30px; border-radius: 12px; width: 750px; max-width: 100%; color: #fff; border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; justify-content: center; align-items: center; overflow-y: auto; padding: 15px; box-sizing: border-box; }
+        .modal-box { background: #141414; padding: 20px; border-radius: 12px; width: 100%; max-width: 700px; color: #fff; border: 1px solid rgba(255,255,255,0.1); max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
+        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         
-        .cast-row { display: flex; gap: 12px; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
-        .cast-item { text-align: center; font-size: 11px; width: 65px; flex-shrink: 0; }
-        .cast-item img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; border: 1px solid #444; }
+        .cast-row { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
+        .cast-item { text-align: center; font-size: 10px; width: 55px; flex-shrink: 0; }
+        .cast-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-bottom: 3px; border: 1px solid #444; }
         
-        .episode-card { display: flex; gap: 12px; background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; align-items: center; transition: background 0.2s; border: 1px solid rgba(255,255,255,0.05); }
-        .episode-card:hover { background: #252525; }
-        .episode-card img { width: 120px; height: 70px; object-fit: cover; border-radius: 6px; }
+        .episode-card { display: flex; gap: 10px; background: #1a1a1a; padding: 8px; border-radius: 6px; margin-bottom: 6px; cursor: pointer; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .episode-card:focus { border-color: var(--primary); outline: none; background: #252525; }
+        .episode-card img { width: 100px; height: 60px; object-fit: cover; border-radius: 4px; }
 
         /* Settings Stijl */
-        #settings-modal .modal-box { width: 900px; max-width: 95vw; background: #0f0f0f; border: 1px solid #222; padding: 0; display: flex; height: 550px; overflow: hidden; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
-        .settings-sidebar { width: 240px; background: #141414; padding: 30px 15px; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid #222; box-sizing: border-box; }
-        .settings-tab { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; color: #888; font-size: 14px; font-weight: 500; transition: all 0.2s; background: none; border: none; width: 100%; text-align: left; }
-        .settings-tab:hover { background: #1f1f1f; color: #fff; }
-        .settings-tab.active { background: #1f1f1f; color: #fff; font-weight: bold; }
-        .settings-content-area { flex: 1; padding: 40px; overflow-y: auto; box-sizing: border-box; }
-        .settings-section-title { font-size: 20px; font-weight: bold; color: #fff; margin-top: 0; margin-bottom: 5px; }
-        .settings-section-desc { font-size: 13px; color: #777; margin-bottom: 30px; }
+        #settings-modal .modal-box { width: 100%; max-width: 850px; background: #0f0f0f; border: 1px solid #222; padding: 0; display: flex; flex-direction: column; height: 80vh; overflow: hidden; border-radius: 12px; }
+        @media (min-width: 768px) { #settings-modal .modal-box { flex-direction: row; height: 550px; } }
+        .settings-sidebar { width: 100%; background: #141414; padding: 15px; display: flex; gap: 5px; overflow-x: auto; border-bottom: 1px solid #222; box-sizing: border-box; }
+        @media (min-width: 768px) { .settings-sidebar { width: 220px; flex-direction: column; padding: 25px 15px; border-bottom: none; border-right: 1px solid #222; overflow-x: visible; } }
+        .settings-tab { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 6px; cursor: pointer; color: #888; font-size: 13px; font-weight: 500; background: none; border: none; white-space: nowrap; flex-shrink: 0; text-align: left; }
+        .settings-tab:hover, .settings-tab.active, .settings-tab:focus { background: #1f1f1f; color: #fff; font-weight: bold; outline: none; }
+        .settings-content-area { flex: 1; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        @media (min-width: 768px) { .settings-content-area { padding: 35px; } }
+        .settings-section-title { font-size: 18px; font-weight: bold; color: #fff; margin-top: 0; margin-bottom: 3px; }
+        .settings-section-desc { font-size: 12px; color: #777; margin-bottom: 20px; }
         
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #1a1a1a; }
-        .setting-label-group { max-width: 65%; }
-        .setting-title { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 3px; }
-        .setting-desc { font-size: 12px; color: #888; }
+        .setting-row { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
+        @media (min-width: 768px) { .setting-row { flex-direction: row; justify-content: space-between; align-items: center; } }
+        .setting-label-group { max-width: 100%; }
+        @media (min-width: 768px) { .setting-label-group { max-width: 65%; } }
+        .setting-title { font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 2px; }
+        .setting-desc { font-size: 11px; color: #888; }
         
         .setting-control { display: flex; align-items: center; gap: 10px; }
-        .setting-control select, .setting-control input[type="text"] { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; }
-        .setting-control select:hover { border-color: #555; }
+        .setting-control select, .setting-control input[type="text"], .setting-control input[type="password"] { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; outline: none; width: 100%; }
+        @media (min-width: 768px) { .setting-control select, .setting-control input[type="text"], .setting-control input[type="password"] { width: auto; } }
         
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; transition: .3s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; transition: .3s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: #fff; }
-        input:checked + .slider:before { transform: translateX(20px); background-color: #000; }
+        input:checked + .slider:before { transform: translateX(18px); background-color: #000; }
 
-        .settings-save-bar { margin-top: 30px; display: flex; justify-content: flex-end; gap: 10px; }
+        .settings-save-bar { margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
 
         /* Speler Overlay */
-        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .player-top-bar { position: absolute; top: 15px; right: 25px; display: flex; gap: 10px; align-items: center; z-index: 10000; }
-        .server-select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; outline: none; }
-        #player-overlay iframe { width: 100%; height: 100%; border: none; margin-top: 50px; }
-        .close-player-btn { background: rgba(20,20,20,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        .close-player-btn:hover { background: var(--primary); border-color: var(--primary); }
+        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; }
+        .player-top-bar { position: absolute; top: 10px; right: 15px; display: flex; gap: 8px; align-items: center; z-index: 100000; }
+        .server-select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+        #player-overlay iframe { width: 100%; height: 100%; border: none; margin-top: 40px; }
+        .close-player-btn { background: rgba(20,20,20,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body class="nav-top">
@@ -127,31 +142,59 @@
     <!-- Inlogscherm -->
     <div id="auth-container">
         <div class="auth-box">
-            <h2>Nuvio Stream</h2>
-            <input type="email" id="auth-email" placeholder="E-mailadres">
+            <h2>Ranger</h2>
+            <input type="email" id="auth-email" placeholder="E-mailadres" autocapitalize="none">
             <input type="password" id="auth-password" placeholder="Wachtwoord">
             <button id="btn-login">Inloggen</button>
             <button id="btn-signup" style="background: #222;">Account Aanmaken</button>
-            <p id="auth-error" style="color: var(--primary); font-size: 13px; text-align: center;"></p>
+            <p id="auth-error" style="color: var(--primary); font-size: 12px; text-align: center;"></p>
+        </div>
+    </div>
+
+    <!-- Profiel Kiezer -->
+    <div id="profile-selector" class="hidden">
+        <h2>Kies je profiel</h2>
+        <div class="profiles-grid" id="profiles-grid-container">
+            <div class="profile-card" tabindex="0" onclick="handleProfileSelection('Hoofd')">
+                <img src="https://i.imgur.com/6VBx3io.png">
+                <div>Hoofdgebruiker</div>
+            </div>
+            <div class="profile-card" tabindex="0" onclick="handleProfileSelection('Gast')">
+                <img src="https://i.imgur.com/9R41Kfe.png">
+                <div>Gast</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Invoer Overlay -->
+    <div id="pin-overlay" class="hidden">
+        <div class="pin-box">
+            <h3 id="pin-title" style="margin-top:0; color:var(--primary);">PIN Invoeren</h3>
+            <input type="password" id="pin-input-field" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••">
+            <div>
+                <button id="pin-submit-btn" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%; margin-bottom:8px;" tabindex="0">Bevestigen</button>
+                <button id="fingerprint-btn" style="background:#222; color:#fff; border:1px solid #444; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%; margin-bottom:8px;" tabindex="0">👆 Vingerafdruk</button>
+                <button id="pin-cancel-btn" style="background:transparent; color:#aaa; border:none; padding:6px; cursor:pointer; font-size:11px;" tabindex="0">Annuleren</button>
+            </div>
         </div>
     </div>
 
     <!-- Navigatie Dock -->
     <nav id="main-nav" class="hidden">
-        <img id="nav-avatar" class="profile-avatar" title="Profiel">
-        <button class="nav-item active" id="nav-home">
+        <img id="nav-avatar" class="profile-avatar" title="Profiel" tabindex="0" onclick="showProfileSelector()">
+        <button class="nav-item active" id="nav-home" tabindex="0">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Home</span>
         </button>
-        <button class="nav-item" id="nav-watchlist">
+        <button class="nav-item" id="nav-watchlist" tabindex="0">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
             <span>Mijn Lijst</span>
         </button>
-        <button class="nav-item" id="nav-search-btn">
+        <button class="nav-item" id="nav-search-btn" tabindex="0">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             <span>Zoeken</span>
         </button>
-        <button class="nav-item" id="open-settings">
+        <button class="nav-item" id="open-settings" tabindex="0">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             <span>Instellingen</span>
         </button>
@@ -164,7 +207,7 @@
                 <option value="embedsu">Server 1: Embed.su</option>
                 <option value="vidlink">Server 2: Vidlink.pro</option>
             </select>
-            <button class="close-player-btn" id="close-player-btn">✕ Sluiten</button>
+            <button class="close-player-btn" id="close-player-btn" tabindex="0">✕ Sluiten</button>
         </div>
         <div id="embed-container" style="width:100%; height:100%;"></div>
     </div>
@@ -176,12 +219,12 @@
                 <h1 class="hero-title" id="hero-title">Inception</h1>
                 <div class="hero-genres" id="hero-genres">Action • Adventure • Sci-Fi</div>
                 <div class="hero-desc" id="hero-overview">A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.</div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="hero-btn" id="hero-details-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Details bekijken
+                <div style="display: flex; gap: 8px;">
+                    <button class="hero-btn" id="hero-details-btn" tabindex="0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Details
                     </button>
-                    <button class="hero-btn" id="hero-watchlist-btn" style="background: rgba(255,255,255,0.2); color: #fff;">
-                        + Mijn Lijst
+                    <button class="hero-btn" id="hero-watchlist-btn" style="background: rgba(255,255,255,0.2); color: #fff;" tabindex="0">
+                        + Lijst
                     </button>
                 </div>
             </div>
@@ -189,23 +232,23 @@
 
         <!-- Streamingdiensten Kiezers -->
         <div class="provider-bar" id="provider-tabs">
-            <div class="provider-badge active" data-provider="8">Netflix</div>
-            <div class="provider-badge" data-provider="337">Disney+</div>
-            <div class="provider-badge" data-provider="1899">HBO Max</div>
-            <div class="provider-badge" data-provider="119">Prime Video</div>
-            <div class="provider-badge" data-provider="350">Apple TV+</div>
-            <div class="provider-badge" data-provider="531">Paramount+</div>
+            <div class="provider-badge active" data-provider="8" tabindex="0">Netflix</div>
+            <div class="provider-badge" data-provider="337" tabindex="0">Disney+</div>
+            <div class="provider-badge" data-provider="1899" tabindex="0">HBO Max</div>
+            <div class="provider-badge" data-provider="119" tabindex="0">Prime Video</div>
+            <div class="provider-badge" data-provider="350" tabindex="0">Apple TV+</div>
+            <div class="provider-badge" data-provider="531" tabindex="0">Paramount+</div>
         </div>
 
         <!-- Filters & Zoekbalk -->
         <div class="filter-bar" id="filter-bar-container">
-            <input type="text" id="search-input" class="search-input" placeholder="Zoek films of series...">
-            <select id="filter-type" class="filter-select">
+            <input type="text" id="search-input" class="search-input" placeholder="Zoek...">
+            <select id="filter-type" class="filter-select" tabindex="0">
                 <option value="movie">Films</option>
                 <option value="tv">Series</option>
             </select>
-            <select id="filter-genre" class="filter-select">
-                <option value="">Alle Genres</option>
+            <select id="filter-genre" class="filter-select" tabindex="0">
+                <option value="">Genres</option>
                 <option value="28">Actie</option>
                 <option value="12">Avontuur</option>
                 <option value="35">Komedie</option>
@@ -215,28 +258,21 @@
                 <option value="53">Thriller</option>
                 <option value="16">Animatie</option>
             </select>
-            <select id="filter-sort" class="filter-select">
-                <option value="popularity.desc">🔥 Meest Populair</option>
-                <option value="vote_average.desc">⭐ Hoogst Beoordeeld</option>
-                <option value="primary_release_date.desc">🆕 Nieuwste Vrijgave</option>
-            </select>
-            <select id="filter-year" class="filter-select">
-                <option value="">Alle Jaartallen</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
+            <select id="filter-sort" class="filter-select" tabindex="0">
+                <option value="popularity.desc">🔥 Populair</option>
+                <option value="vote_average.desc">⭐ Boven</option>
+                <option value="primary_release_date.desc">🆕 Nieuw</option>
             </select>
         </div>
 
         <div id="dynamic-catalog-wrapper">
             <div id="trakt-continue-section" class="hidden">
-                <div class="section-title">▶ Verder Kijken (Trakt Continue Watching)</div>
+                <div class="section-title">▶ Verder Kijken (Trakt)</div>
                 <div class="row-container" id="trakt-continue-container"></div>
             </div>
             <div class="section-title" id="catalog-heading">Catalogus</div>
             <div class="row-container" id="catalog-container">
-                <p style="color: #777; padding-left: 40px;">Voer je TMDB-sleutel in bij instellingen om inhoud te laden.</p>
+                <p style="color: #777; padding-left: 20px;">Voer je TMDB-sleutel in bij instellingen.</p>
             </div>
         </div>
     </main>
@@ -244,27 +280,27 @@
     <!-- Detail Modal -->
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-box">
-            <h2 id="modal-title" style="margin-top:0; color:var(--primary);"></h2>
-            <p id="modal-meta" style="color:#aaa; font-size:12px;"></p>
-            <p id="modal-overview" style="font-size:14px; line-height:1.4;"></p>
+            <h2 id="modal-title" style="margin-top:0; color:var(--primary); font-size: 20px;"></h2>
+            <p id="modal-meta" style="color:#aaa; font-size:11px;"></p>
+            <p id="modal-overview" style="font-size:13px; line-height:1.4;"></p>
             
             <div id="seasons-section" class="hidden" style="margin: 15px 0;">
-                <label style="font-weight:bold; font-size:13px;">Seizoen:</label>
-                <select id="season-select" class="filter-select" style="margin-top:5px; margin-bottom:10px; width:200px;"></select>
-                <div id="episodes-container" style="max-height: 250px; overflow-y: auto;"></div>
+                <label style="font-weight:bold; font-size:12px;">Seizoen:</label>
+                <select id="season-select" class="filter-select" style="margin-top:5px; margin-bottom:10px; width:100%;" tabindex="0"></select>
+                <div id="episodes-container" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
 
-            <div id="player-section" style="margin: 20px 0; background: #1c1c1c; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                <h4 style="margin: 0 0 10px 0; color: #46d369;">Direct Afspelen (Multi-Server HD)</h4>
+            <div id="player-section" style="margin: 15px 0; background: #1c1c1c; padding: 12px; border-radius: 6px; border: 1px solid #333;">
+                <h4 style="margin: 0 0 8px 0; color: #46d369; font-size: 13px;">Direct Afspelen (HD / Debrid)</h4>
                 <div id="streams-list"></div>
             </div>
 
             <div id="modal-trailer" style="margin: 15px 0;"></div>
-            <h4 style="margin: 10px 0 5px 0; font-size:14px;">Hoofdrolspelers</h4>
+            <h4 style="margin: 10px 0 5px 0; font-size:13px;">Hoofdrolspelers</h4>
             <div class="cast-row" id="modal-cast"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                <button id="modal-watchlist-btn" style="background:#222; color:#fff; border:1px solid #444; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold;">+ Toevoegen aan Mijn Lijst</button>
-                <button id="close-detail" style="background:#333; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Sluiten</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; gap: 10px;">
+                <button id="modal-watchlist-btn" style="background:#222; color:#fff; border:1px solid #444; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px; flex: 1;" tabindex="0">+ Lijst</button>
+                <button id="close-detail" style="background:#333; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:11px;" tabindex="0">Sluiten</button>
             </div>
         </div>
     </div>
@@ -273,21 +309,37 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="settings-sidebar">
-                <button class="settings-tab active" data-tab="tab-playback">Playback</button>
-                <button class="settings-tab" data-tab="tab-appearance">Appearance</button>
-                <button class="settings-tab" data-tab="tab-subtitles">Subtitles</button>
-                <button class="settings-tab" data-tab="tab-integrations">Integrations</button>
+                <button class="settings-tab active" data-tab="tab-account" tabindex="0">Account</button>
+                <button class="settings-tab" data-tab="tab-playback" tabindex="0">Playback</button>
+                <button class="settings-tab" data-tab="tab-appearance" tabindex="0">Appearance</button>
+                <button class="settings-tab" data-tab="tab-subtitles" tabindex="0">Subtitles</button>
+                <button class="settings-tab" data-tab="tab-integrations" tabindex="0">Integrations</button>
             </div>
             
             <div class="settings-content-area">
-                <div id="tab-playback" class="settings-tab-content">
+                <div id="tab-account" class="settings-tab-content">
+                    <h2 class="settings-section-title">Account & Beveiliging</h2>
+                    <div class="settings-section-desc">Beheer pincode en profielbeveiliging</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-label-group">
+                            <div class="setting-title">Profiel PIN Beveiliging</div>
+                            <div class="setting-desc">Stel een optionele pincode in voor dit actieve profiel (laat leeg voor geen pincode)</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="password" id="setting-profile-pin" maxlength="6" placeholder="Voer PIN in" tabindex="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-playback" class="settings-tab-content hidden">
                     <h2 class="settings-section-title">Playback</h2>
-                    <div class="settings-section-desc">Configure your video player preferences</div>
+                    <div class="settings-section-desc">Configure player preferences</div>
                     
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Auto Next Episode</div>
-                            <div class="setting-desc">Automatically play the next episode when one ends</div>
+                            <div class="setting-desc">Play next episode automatically</div>
                         </div>
                         <div class="setting-control">
                             <label class="switch"><input type="checkbox" id="setting-auto-next" checked><span class="slider"></span></label>
@@ -297,7 +349,7 @@
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Skip Intro Automatically</div>
-                            <div class="setting-desc">Automatically skip intro sequences when detected</div>
+                            <div class="setting-desc">Skip intros when detected</div>
                         </div>
                         <div class="setting-control">
                             <label class="switch"><input type="checkbox" id="setting-skip-intro" checked><span class="slider"></span></label>
@@ -307,15 +359,15 @@
 
                 <div id="tab-appearance" class="settings-tab-content hidden">
                     <h2 class="settings-section-title">Appearance</h2>
-                    <div class="settings-section-desc">Configure visual effects and appearance</div>
+                    <div class="settings-section-desc">Configure UI layout</div>
 
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Navigatie Positie</div>
-                            <div class="setting-desc">Kies waar je het navigatiedock wilt plaatsen</div>
+                            <div class="setting-desc">Dock positie</div>
                         </div>
                         <div class="setting-control">
-                            <select id="setting-nav-pos">
+                            <select id="setting-nav-pos" tabindex="0">
                                 <option value="nav-top">Boven</option>
                                 <option value="nav-bottom">Onder</option>
                                 <option value="nav-left">Links</option>
@@ -326,14 +378,14 @@
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Profielicoon</div>
-                            <div class="setting-desc">Selecteer je avatar</div>
+                            <div class="setting-desc">Avatar selectie</div>
                         </div>
                         <div class="setting-control">
-                            <select id="setting-avatar">
-                                <option value="https://i.imgur.com/6VBx3io.png">Standaard Rood</option>
-                                <option value="https://i.imgur.com/9R41Kfe.png">Cool Blauw</option>
-                                <option value="https://i.imgur.com/2Y0qQvk.png">Neon Groen</option>
-                                <option value="https://i.imgur.com/5ZTt7ve.png">Gouden Kroon</option>
+                            <select id="setting-avatar" tabindex="0">
+                                <option value="https://i.imgur.com/6VBx3io.png">Rood</option>
+                                <option value="https://i.imgur.com/9R41Kfe.png">Blauw</option>
+                                <option value="https://i.imgur.com/2Y0qQvk.png">Groen</option>
+                                <option value="https://i.imgur.com/5ZTt7ve.png">Goud</option>
                             </select>
                         </div>
                     </div>
@@ -341,24 +393,24 @@
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Thema Kleur</div>
-                            <div class="setting-desc">Kies je accentkleur</div>
+                            <div class="setting-desc">Accentkleur</div>
                         </div>
                         <div class="setting-control">
-                            <input type="color" id="setting-theme-color" value="#e50914" style="height:35px; width:50px; background:none; border:none; cursor:pointer;">
+                            <input type="color" id="setting-theme-color" value="#e50914" style="height:35px; width:50px; background:none; border:none; cursor:pointer;" tabindex="0">
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-subtitles" class="settings-tab-content hidden">
                     <h2 class="settings-section-title">Subtitles</h2>
-                    <div class="settings-section-desc">Configure subtitle preferences</div>
+                    <div class="settings-section-desc">Configure subtitles</div>
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Ondertiteling Taal</div>
-                            <div class="setting-desc">Standaard taal voor ondertitels</div>
+                            <div class="setting-desc">Standaard taal</div>
                         </div>
                         <div class="setting-control">
-                            <select id="setting-sub-lang">
+                            <select id="setting-sub-lang" tabindex="0">
                                 <option value="nl">Nederlands</option>
                                 <option value="en">Engels</option>
                             </select>
@@ -368,52 +420,52 @@
 
                 <div id="tab-integrations" class="settings-tab-content hidden">
                     <h2 class="settings-section-title">Integrations</h2>
-                    <div class="settings-section-desc">Configure external API keys and services</div>
+                    <div class="settings-section-desc">Configure API keys</div>
                     
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">TMDB API Sleutel</div>
-                            <div class="setting-desc">Benodigd om films en series op te halen</div>
+                            <div class="setting-desc">Verplicht voor catalogus</div>
                         </div>
                         <div class="setting-control">
-                            <input type="text" id="setting-tmdb-key" placeholder="Plak TMDB sleutel">
+                            <input type="text" id="setting-tmdb-key" placeholder="Plak TMDB sleutel" tabindex="0">
                         </div>
                     </div>
 
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Real-Debrid API Token</div>
-                            <div class="setting-desc">Voor directe High-Speed debrid streams</div>
+                            <div class="setting-desc">Voor High-Speed streams</div>
                         </div>
                         <div class="setting-control">
-                            <input type="text" id="setting-realdebrid-key" placeholder="Plak Real-Debrid token">
+                            <input type="text" id="setting-realdebrid-key" placeholder="Plak Real-Debrid token" tabindex="0">
                         </div>
                     </div>
 
                     <div class="setting-row">
                         <div class="setting-label-group">
                             <div class="setting-title">Trakt.tv Gebruikersnaam</div>
-                            <div class="setting-desc">Voor synchronisatie van je kijkgeschiedenis</div>
+                            <div class="setting-desc">Synchronisatie</div>
                         </div>
                         <div class="setting-control">
-                            <input type="text" id="setting-trakt-user" placeholder="Trakt username">
+                            <input type="text" id="setting-trakt-user" placeholder="Trakt username" tabindex="0">
                         </div>
                     </div>
 
                     <div class="setting-row">
                         <div class="setting-label-group">
-                            <div class="setting-title">Trakt Client ID (Optioneel)</div>
-                            <div class="setting-desc">Persoonlijke Trakt API Client ID</div>
+                            <div class="setting-title">Trakt Client ID</div>
+                            <div class="setting-desc">Optioneel</div>
                         </div>
                         <div class="setting-control">
-                            <input type="text" id="setting-trakt-client" placeholder="Client ID">
+                            <input type="text" id="setting-trakt-client" placeholder="Client ID" tabindex="0">
                         </div>
                     </div>
                 </div>
 
                 <div class="settings-save-bar">
-                    <button id="close-settings" style="background:#222; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">Sluiten</button>
-                    <button id="save-settings" style="background:var(--primary); color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">Opslaan</button>
+                    <button id="close-settings" style="background:#222; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;" tabindex="0">Sluiten</button>
+                    <button id="save-settings" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;" tabindex="0">Opslaan</button>
                 </div>
             </div>
         </div>
@@ -439,6 +491,8 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let activeProfile = 'Hoofd';
+        let pendingProfile = null;
         let selectedProvider = "8";
         let userWatchlist = [];
         let currentActiveItem = null;
@@ -460,16 +514,94 @@
             if(user) {
                 currentUser = user;
                 document.getElementById('auth-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                document.getElementById('main-nav').classList.remove('hidden');
-                await loadSettingsFromCloud(user.uid);
+                document.getElementById('profile-selector').classList.remove('hidden');
             } else {
                 currentUser = null;
-                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('profile-selector').classList.add('hidden');
+                document.getElementById('pin-overlay').classList.add('hidden');
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('main-nav').classList.add('hidden');
             }
         });
+
+        window.handleProfileSelection = async function(profileName) {
+            pendingProfile = profileName;
+            try {
+                const snap = await getDoc(doc(db, "users", `${currentUser.uid}_${profileName}`));
+                const data = snap.exists() ? snap.data() : {};
+                
+                if(data.profilePin && data.profilePin.trim() !== '') {
+                    document.getElementById('pin-title').innerText = `PIN voor ${profileName}`;
+                    document.getElementById('pin-input-field').value = '';
+                    document.getElementById('pin-overlay').classList.remove('hidden');
+                } else {
+                    activateProfile(profileName);
+                }
+            } catch(e) {
+                activateProfile(profileName);
+            }
+        };
+
+        document.getElementById('pin-submit-btn').addEventListener('click', async () => {
+            const enteredPin = document.getElementById('pin-input-field').value;
+            const snap = await getDoc(doc(db, "users", `${currentUser.uid}_${pendingProfile}`));
+            const data = snap.exists() ? snap.data() : {};
+
+            if(data.profilePin === enteredPin) {
+                document.getElementById('pin-overlay').classList.add('hidden');
+                activateProfile(pendingProfile);
+            } else {
+                alert('Onjuiste pincode!');
+            }
+        });
+
+        document.getElementById('pin-cancel-btn').addEventListener('click', () => {
+            document.getElementById('pin-overlay').classList.add('hidden');
+            pendingProfile = null;
+        });
+
+        // Vingerafdruk authenticatie via WebAuthn API
+        document.getElementById('fingerprint-btn').addEventListener('click', async () => {
+            if (!window.PublicKeyCredential) {
+                alert('Biometrische authenticatie wordt niet ondersteund op dit apparaat of browser.');
+                return;
+            }
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                const publicKey = {
+                    challenge: challenge,
+                    rp: { name: "Ranger", id: window.location.hostname },
+                    user: {
+                        id: Uint8Array.from(currentUser.uid, c => c.charCodeAt(0)),
+                        name: currentUser.email,
+                        displayName: pendingProfile
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                    timeout: 60000,
+                    authenticatorSelection: { userVerification: "required" }
+                };
+                
+                await navigator.credentials.create({ publicKey });
+                document.getElementById('pin-overlay').classList.add('hidden');
+                activateProfile(pendingProfile);
+            } catch (err) {
+                alert('Vingerafdruk verificatie mislukt of geannuleerd.');
+            }
+        });
+
+        async function activateProfile(profileName) {
+            activeProfile = profileName;
+            document.getElementById('profile-selector').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('main-nav').classList.remove('hidden');
+            await loadSettingsFromCloud(currentUser.uid);
+        }
+
+        window.showProfileSelector = function() {
+            document.getElementById('profile-selector').classList.remove('hidden');
+        };
 
         document.querySelectorAll('.settings-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -513,10 +645,10 @@
             const index = userWatchlist.findIndex(i => i.id === currentActiveItem.id);
             if(index > -1) {
                 userWatchlist.splice(index, 1);
-                document.getElementById('modal-watchlist-btn').innerText = "+ Toevoegen aan Mijn Lijst";
+                document.getElementById('modal-watchlist-btn').innerText = "+ Lijst";
             } else {
                 userWatchlist.push(currentActiveItem);
-                document.getElementById('modal-watchlist-btn').innerText = "✓ In Mijn Lijst";
+                document.getElementById('modal-watchlist-btn').innerText = "✓ In Lijst";
             }
             saveDataToCloud();
         });
@@ -526,10 +658,10 @@
             const index = userWatchlist.findIndex(i => i.id === currentActiveItem.id);
             if(index > -1) {
                 userWatchlist.splice(index, 1);
-                document.getElementById('hero-watchlist-btn').innerText = "+ Mijn Lijst";
+                document.getElementById('hero-watchlist-btn').innerText = "+ Lijst";
             } else {
                 userWatchlist.push(currentActiveItem);
-                document.getElementById('hero-watchlist-btn').innerText = "✓ In Mijn Lijst";
+                document.getElementById('hero-watchlist-btn').innerText = "✓ In Lijst";
             }
             saveDataToCloud();
         });
@@ -545,20 +677,21 @@
                 themeColor: document.getElementById('setting-theme-color').value,
                 navPos: document.getElementById('setting-nav-pos').value,
                 subLang: document.getElementById('setting-sub-lang').value,
+                profilePin: document.getElementById('setting-profile-pin').value,
                 autoNext: document.getElementById('setting-auto-next').checked,
                 skipIntro: document.getElementById('setting-skip-intro').checked,
                 watchlist: userWatchlist
             };
             try {
-                await setDoc(doc(db, "users", currentUser.uid), settings, { merge: true });
-            } catch(e) { console.error("Cloud opslaan mislukt:", e); }
+                await setDoc(doc(db, "users", `${currentUser.uid}_${activeProfile}`), settings, { merge: true });
+            } catch(e) { console.error(e); }
         }
 
         document.getElementById('save-settings').addEventListener('click', async () => {
             if(!currentUser) return;
             await saveDataToCloud();
             settingsModal.style.display = 'none';
-            alert('Opgeslagen in je account!');
+            alert('Opgeslagen!');
             
             traktUsername = document.getElementById('setting-trakt-user').value;
             const clientVal = document.getElementById('setting-trakt-client').value;
@@ -578,7 +711,7 @@
 
         async function loadSettingsFromCloud(uid) {
             try {
-                const snap = await getDoc(doc(db, "users", uid));
+                const snap = await getDoc(doc(db, "users", `${uid}_${activeProfile}`));
                 if(snap.exists()) {
                     const d = snap.data();
                     document.getElementById('setting-tmdb-key').value = d.tmdbKey || '';
@@ -589,6 +722,7 @@
                     if(d.themeColor) document.getElementById('setting-theme-color').value = d.themeColor;
                     if(d.navPos) document.getElementById('setting-nav-pos').value = d.navPos;
                     if(d.subLang) document.getElementById('setting-sub-lang').value = d.subLang;
+                    if(d.profilePin !== undefined) document.getElementById('setting-profile-pin').value = d.profilePin;
                     if(d.autoNext !== undefined) document.getElementById('setting-auto-next').checked = d.autoNext;
                     if(d.skipIntro !== undefined) document.getElementById('setting-skip-intro').checked = d.skipIntro;
                     if(d.watchlist) userWatchlist = d.watchlist;
@@ -602,7 +736,7 @@
                         if(traktUsername) fetchTraktContinueWatching();
                     }
                 }
-            } catch(e) { console.error("Cloud laden mislukt:", e); }
+            } catch(e) { console.error(e); }
         }
 
         function applySettings(settings) {
@@ -677,7 +811,7 @@
                         }
                     }
                 }
-            } catch(e) { console.error("Fout bij ophalen Trakt data:", e); }
+            } catch(e) { console.error(e); }
         }
 
         async function searchMovies(query) {
@@ -691,7 +825,7 @@
                 
                 if(data.results && data.results.length > 0) {
                     container.innerHTML = '';
-                    document.getElementById('catalog-heading').innerText = `Zoekresultaten voor: "${query}"`;
+                    document.getElementById('catalog-heading').innerText = `Zoekresultaten: "${query}"`;
                     
                     data.results.forEach(item => {
                         if(item.poster_path) {
@@ -699,28 +833,23 @@
                         }
                     });
                 } else {
-                    container.innerHTML = '<p style="color: #777; padding-left: 40px;">Geen resultaten gevonden.</p>';
+                    container.innerHTML = '<p style="color: #777; padding-left: 20px;">Geen resultaten.</p>';
                 }
             } catch(e) { console.error(e); }
         }
 
         window.fetchCatalog = async function() {
             const apiKey = document.getElementById('setting-tmdb-key').value;
-            const wrapper = document.getElementById('dynamic-catalog-wrapper');
+            const container = document.getElementById('catalog-container');
             if(!apiKey) return;
 
             const sortBy = document.getElementById('filter-sort').value;
             const mediaType = document.getElementById('filter-type').value;
             const genreId = document.getElementById('filter-genre').value;
-            const year = document.getElementById('filter-year').value;
 
             try {
                 let url = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${apiKey}&with_watch_providers=${selectedProvider}&watch_region=NL&language=nl-NL&sort_by=${sortBy}`;
                 if (genreId) url += `&with_genres=${genreId}`;
-                if (year) {
-                    if(mediaType === 'movie') url += `&primary_release_year=${year}`;
-                    else url += `&first_air_date_year=${year}`;
-                }
 
                 const res = await fetch(url);
                 const data = await res.json();
@@ -730,16 +859,15 @@
                     const randomHeroItem = validItems.length > 0 ? validItems[Math.floor(Math.random() * validItems.length)] : data.results[0];
                     updateHero(randomHeroItem, apiKey, mediaType);
 
-                    const catalogContainer = document.getElementById('catalog-container');
-                    catalogContainer.innerHTML = '';
-                    document.getElementById('catalog-heading').innerText = "🔥 Meest Populair op deze dienst";
+                    container.innerHTML = '';
+                    document.getElementById('catalog-heading').innerText = "🔥 Meest Populair";
 
                     data.results.forEach((item) => {
-                        if(item.poster_path) appendCard(item, catalogContainer, mediaType, apiKey);
+                        if(item.poster_path) appendCard(item, container, mediaType, apiKey);
                     });
 
                 } else {
-                    document.getElementById('catalog-container').innerHTML = '<p style="color: #777; padding-left: 40px;">Geen resultaten gevonden voor deze dienst.</p>';
+                    container.innerHTML = '<p style="color: #777; padding-left: 20px;">Geen resultaten.</p>';
                 }
             } catch(e) { console.error(e); }
         };
@@ -748,13 +876,13 @@
             const container = document.getElementById('catalog-container');
             document.getElementById('filter-bar-container').style.display = 'none';
             document.getElementById('trakt-continue-section').classList.add('hidden');
-            document.getElementById('catalog-heading').innerText = 'Mijn Lijst (Favorieten)';
+            document.getElementById('catalog-heading').innerText = 'Mijn Lijst';
             
             container.innerHTML = '';
             const apiKey = document.getElementById('setting-tmdb-key').value;
 
             if(userWatchlist.length === 0) {
-                container.innerHTML = '<p style="color: #777; padding-left: 40px;">Je hebt nog geen films of series toegevoegd aan je lijst.</p>';
+                container.innerHTML = '<p style="color: #777; padding-left: 20px;">Je lijst is leeg.</p>';
                 return;
             }
 
@@ -767,6 +895,7 @@
             const poster = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
             const card = document.createElement('div');
             card.className = 'card';
+            card.tabIndex = 0;
             card.innerHTML = `
                 <img src="${poster}" loading="lazy">
                 <div class="card-info">
@@ -787,7 +916,7 @@
             document.getElementById('hero-details-btn').onclick = () => openModal(item, mediaType, apiKey);
             
             const inList = userWatchlist.some(i => i.id === item.id);
-            document.getElementById('hero-watchlist-btn').innerText = inList ? "✓ In Mijn Lijst" : "+ Mijn Lijst";
+            document.getElementById('hero-watchlist-btn').innerText = inList ? "✓ Lijst" : "+ Lijst";
         }
 
         async function openModal(item, type, apiKey) {
@@ -801,7 +930,7 @@
             document.getElementById('streams-list').innerHTML = '';
             
             const inList = userWatchlist.some(i => i.id === item.id);
-            document.getElementById('modal-watchlist-btn').innerText = inList ? "✓ In Mijn Lijst" : "+ Toevoegen aan Mijn Lijst";
+            document.getElementById('modal-watchlist-btn').innerText = inList ? "✓ In Lijst" : "+ Lijst";
 
             const seasonsSection = document.getElementById('seasons-section');
             seasonsSection.classList.add('hidden');
@@ -812,17 +941,17 @@
                 const data = await res.json();
 
                 const year = (data.release_date || data.first_air_date || '').split('-')[0];
-                const runtime = data.runtime ? `${data.runtime} min` : (data.episode_run_time?.[0] ? `${data.episode_run_time[0]} min / aflevering` : '');
+                const runtime = data.runtime ? `${data.runtime} min` : (data.episode_run_time?.[0] ? `${data.episode_run_time[0]} min` : '');
                 document.getElementById('modal-meta').innerText = `${year} • ${runtime}`;
 
                 const trailer = data.videos?.results?.find(v => v.site === 'YouTube' && v.type === 'Trailer');
                 if(trailer) {
-                    document.getElementById('modal-trailer').innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${trailer.key}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe>`;
+                    document.getElementById('modal-trailer').innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${trailer.key}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe>`;
                 }
 
                 const castBox = document.getElementById('modal-cast');
                 data.credits?.cast?.slice(0, 10).forEach(actor => {
-                    const img = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/100?text=Geen';
+                    const img = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/80?text=Geen';
                     castBox.innerHTML += `<div class="cast-item"><img src="${img}"><div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${actor.name}</div></div>`;
                 });
 
@@ -848,7 +977,7 @@
 
         async function loadEpisodes(tvId, seasonNumber, apiKey) {
             const container = document.getElementById('episodes-container');
-            container.innerHTML = 'Afleveringen laden...';
+            container.innerHTML = 'Laden...';
             try {
                 const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}&language=nl-NL`);
                 const data = await res.json();
@@ -856,14 +985,15 @@
 
                 if (data.episodes) {
                     data.episodes.forEach(ep => {
-                        const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'https://via.placeholder.com/120x70?text=Geen+Beeld';
+                        const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'https://via.placeholder.com/100x60?text=Geen';
                         const card = document.createElement('div');
                         card.className = 'episode-card';
+                        card.tabIndex = 0;
                         card.innerHTML = `
                             <img src="${thumb}">
                             <div>
-                                <div style="font-weight:bold; font-size:13px;">${ep.episode_number}. ${ep.name}</div>
-                                <div style="font-size:11px; color:#aaa; margin-top:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${ep.overview || 'Geen beschrijving'}</div>
+                                <div style="font-weight:bold; font-size:12px;">${ep.episode_number}. ${ep.name}</div>
+                                <div style="font-size:10px; color:#aaa; margin-top:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${ep.overview || ''}</div>
                             </div>
                         `;
                         card.addEventListener('click', () => {
@@ -873,18 +1003,20 @@
                         container.appendChild(card);
                     });
                 }
-            } catch(e) { container.innerHTML = 'Fout bij laden afleveringen.'; }
+            } catch(e) { container.innerHTML = 'Fout bij laden.'; }
         }
 
         function renderPlayerButton() {
             const streamsContainer = document.getElementById('streams-list');
+            const rdKey = document.getElementById('setting-realdebrid-key').value;
+            
             streamsContainer.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px 14px; border-radius:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-weight:bold; color:#fff;">🎬 HD Stream (Multi-Server)</div>
-                        <div style="font-size:11px; color:#888;">Multi-server failover & automatische ondertiteling</div>
+                        <div style="font-weight:bold; color:#fff; font-size: 12px;">${rdKey ? '⚡ Real-Debrid High-Speed Stream' : 'HD Stream (Standaard)'}</div>
+                        <div style="font-size:10px; color:#888;">Multi-server failover met automatische ondertiteling</div>
                     </div>
-                    <button id="start-movie-btn" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold;">Afspelen</button>
+                    <button id="start-movie-btn" style="background:var(--primary); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 11px;" tabindex="0">Afspelen</button>
                 </div>
             `;
             document.getElementById('start-movie-btn').onclick = () => openFullscreenEmbed();
@@ -896,14 +1028,15 @@
             const overlay = document.getElementById('player-overlay');
             const container = document.getElementById('embed-container');
             const serverChoice = document.getElementById('server-switcher').value;
+            const subLang = document.getElementById('setting-sub-lang').value;
 
             let url = '';
             if(currentPlayParams.type === 'movie') {
-                if(serverChoice === 'embedsu') url = `https://embed.su/embed/movie/${currentPlayParams.tmdbId}`;
-                else url = `https://vidlink.pro/movie/${currentPlayParams.tmdbId}`;
+                if(serverChoice === 'embedsu') url = `https://embed.su/embed/movie/${currentPlayParams.tmdbId}?sub.lang=${subLang}`;
+                else url = `https://vidlink.pro/movie/${currentPlayParams.tmdbId}?sub=${subLang}`;
             } else {
-                if(serverChoice === 'embedsu') url = `https://embed.su/embed/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}`;
-                else url = `https://vidlink.pro/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}`;
+                if(serverChoice === 'embedsu') url = `https://embed.su/embed/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub.lang=${subLang}`;
+                else url = `https://vidlink.pro/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub=${subLang}`;
             }
             
             container.innerHTML = `<iframe src="${url}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
