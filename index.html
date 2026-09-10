@@ -33,10 +33,10 @@
         .pin-input { font-size: 24px; letter-spacing: 8px; text-align: center; width: 150px; padding: 8px; background: #1f1f1f; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 15px; }
 
         /* Navigatie Container */
-        nav { z-index: 1000; position: fixed; display: flex; align-items: center; background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        nav { z-index: 1000; position: fixed; display: flex; align-items: center; background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
         body.nav-top nav { top: 10px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 6px 15px; gap: 15px; height: 50px; }
-        body.nav-bottom nav { bottom: 10px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 6px 15px; gap: 15px; height: 50px; }
+        body.nav-bottom nav { bottom: env(safe-area-inset-bottom, 10px); left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 6px 15px; gap: 15px; height: 50px; }
         body.nav-left nav { top: 0; left: 0; height: 100vh; width: 70px; flex-direction: column; padding-top: 20px; gap: 15px; border-right: 1px solid rgba(255,255,255,0.1); border-radius: 0; }
 
         .nav-item { display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: 0.7; font-size: 12px; font-weight: bold; background: none; border: none; color: #fff; }
@@ -46,9 +46,9 @@
 
         /* Hoofdinhoud */
         main { flex: 1; overflow-y: auto; height: 100vh; width: 100%; position: relative; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
-        body.nav-top main { padding-top: 65px; }
-        body.nav-bottom main { padding-bottom: 65px; }
-        body.nav-left main { padding-left: 70px; }
+        body.nav-top main { padding-top: 65px; padding-bottom: 20px; }
+        body.nav-bottom main { padding-top: 20px; padding-bottom: 80px; }
+        body.nav-left main { padding-left: 70px; padding-top: 20px; padding-bottom: 20px; }
 
         /* Hero Banner */
         .hero { position: relative; width: 100%; height: 45vh; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; box-sizing: border-box; }
@@ -129,15 +129,40 @@
 
         .settings-save-bar { margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
 
-        /* Speler Overlay */
-        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; }
-        .player-top-bar { position: absolute; top: 10px; right: 15px; display: flex; gap: 8px; align-items: center; z-index: 100000; }
-        .server-select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
-        #player-overlay iframe { width: 100%; height: 100%; border: none; margin-top: 40px; }
-        .close-player-btn { background: rgba(20,20,20,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+        /* Eigen Videospeler Overlay */
+        #custom-player-container { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        #custom-video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Pausenscherm & Info Overlay (Netflix Stijl) */
+        #pause-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; padding: 50px; box-sizing: border-box; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100000; }
+        #pause-overlay.visible { opacity: 1; pointer-events: auto; }
+        .pause-info-box { max-width: 500px; border-left: 4px solid var(--primary); padding-left: 20px; }
+        .pause-subtitle { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #aaa; margin-bottom: 5px; }
+        .pause-title { font-size: 32px; font-weight: bold; color: #fff; margin: 0 0 8px 0; text-transform: uppercase; }
+        .pause-ep-info { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 12px; }
+        .pause-desc { font-size: 13px; line-height: 1.4; color: #ddd; }
+
+        /* Strakke Bedieningsbalk Onderaan */
+        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%); padding: 20px; display: flex; flex-direction: column; gap: 10px; opacity: 1; transition: opacity 0.3s ease; z-index: 100001; }
+        .player-controls.hidden-cursor { opacity: 0; cursor: none; }
+
+        .progress-bar-container { width: 100%; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; cursor: pointer; position: relative; }
+        .progress-bar-filled { height: 100%; background: var(--primary); width: 0%; border-radius: 3px; position: relative; }
+        .progress-handle { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; right: -6px; top: -3.5px; display: none; }
+        .progress-bar-container:hover .progress-handle { display: block; }
+
+        .controls-row { display: flex; justify-content: space-between; align-items: center; }
+        .controls-left, .controls-right { display: flex; align-items: center; gap: 15px; }
+        .ctrl-btn { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        .ctrl-btn:hover { color: var(--primary); }
+        .time-display { font-size: 12px; color: #ccc; font-variant-numeric: tabular-nums; }
+
+        /* Top Bar in Speler */
+        .player-top-bar { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100001; }
+        .back-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
     </style>
 </head>
-<body class="nav-top">
+<body class="nav-bottom">
 
     <!-- Inlogscherm -->
     <div id="auth-container">
@@ -195,21 +220,52 @@
             <span>Zoeken</span>
         </button>
         <button class="nav-item" id="open-settings" tabindex="0">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c-.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             <span>Instellingen</span>
         </button>
     </nav>
 
-    <!-- Speler Overlay -->
-    <div id="player-overlay">
+    <!-- Eigen Videospeler Overlay -->
+    <div id="custom-player-container">
+        <video id="custom-video" crossorigin="anonymous" playsinline></video>
+        
         <div class="player-top-bar">
-            <select id="server-switcher" class="server-select">
-                <option value="embedsu">Server 1: Embed.su</option>
-                <option value="vidlink">Server 2: Vidlink.pro</option>
-            </select>
-            <button class="close-player-btn" id="close-player-btn" tabindex="0">✕ Sluiten</button>
+            <button class="back-btn" id="close-custom-player">✕ Sluiten</button>
+            <div id="player-top-title" style="font-weight:bold; font-size:14px; text-shadow:0 2px 4px rgba(0,0,0,0.8);"></div>
+            <div></div>
         </div>
-        <div id="embed-container" style="width:100%; height:100%;"></div>
+
+        <!-- Pauze & Info Overlay (Net zoals jouw voorbeeld) -->
+        <div id="pause-overlay">
+            <div class="pause-info-box">
+                <div class="pause-subtitle">You are watching</div>
+                <h1 class="pause-title" id="overlay-title">TULSA KING</h1>
+                <div class="pause-ep-info" id="overlay-ep">S1 E4 • Visitation Place</div>
+                <div class="pause-desc" id="overlay-desc">Beschrijving van de aflevering of film komt hier te staan...</div>
+            </div>
+        </div>
+
+        <!-- Onderste Bedieningsbalk -->
+        <div class="player-controls" id="player-controls-bar">
+            <div class="progress-bar-container" id="progress-container">
+                <div class="progress-bar-filled" id="progress-filled">
+                    <div class="progress-handle"></div>
+                </div>
+            </div>
+            <div class="controls-row">
+                <div class="controls-left">
+                    <button class="ctrl-btn" id="play-pause-btn">▶</button>
+                    <button class="ctrl-btn" id="skip-back-btn">↺ 10s</button>
+                    <button class="ctrl-btn" id="skip-forward-btn">10s ↻</button>
+                    <button class="ctrl-btn" id="mute-btn">🔊</button>
+                    <span class="time-display" id="time-display">00:00 / 00:00</span>
+                </div>
+                <div class="controls-right">
+                    <button class="ctrl-btn" id="pip-btn" title="Picture-in-Picture">📺</button>
+                    <button class="ctrl-btn" id="fullscreen-btn" title="Volledig scherm">⛶</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Hoofdapplicatie -->
@@ -291,7 +347,7 @@
             </div>
 
             <div id="player-section" style="margin: 15px 0; background: #1c1c1c; padding: 12px; border-radius: 6px; border: 1px solid #333;">
-                <h4 style="margin: 0 0 8px 0; color: #46d369; font-size: 13px;">Direct Afspelen (HD / Debrid)</h4>
+                <h4 style="margin: 0 0 8px 0; color: #46d369; font-size: 13px;">Direct Afspelen (Eigen Speler)</h4>
                 <div id="streams-list"></div>
             </div>
 
@@ -369,7 +425,7 @@
                         <div class="setting-control">
                             <select id="setting-nav-pos" tabindex="0">
                                 <option value="nav-top">Boven</option>
-                                <option value="nav-bottom">Onder</option>
+                                <option value="nav-bottom" selected>Onder</option>
                                 <option value="nav-left">Links</option>
                             </select>
                         </div>
@@ -411,7 +467,7 @@
                         </div>
                         <div class="setting-control">
                             <select id="setting-sub-lang" tabindex="0">
-                                <option value="nl">Nederlands</option>
+                                <option value="nl" selected>Nederlands</option>
                                 <option value="en">Engels</option>
                             </select>
                         </div>
@@ -500,6 +556,17 @@
         let traktUsername = '';
         let traktClientId = 'c75a463e26456729227f4ca1349f257a4195155167ea88fcf7b5e43a6d96a77d';
 
+        // Eigen Speler DOM Elementen
+        const customPlayerContainer = document.getElementById('custom-player-container');
+        const customVideo = document.getElementById('custom-video');
+        const pauseOverlay = document.getElementById('pause-overlay');
+        const controlsBar = document.getElementById('player-controls-bar');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressFilled = document.getElementById('progress-filled');
+        const timeDisplay = document.getElementById('time-display');
+        let hideTimeout;
+
         document.getElementById('btn-login').addEventListener('click', async () => {
             try { await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value); }
             catch(err) { document.getElementById('auth-error').innerText = err.message; }
@@ -561,7 +628,6 @@
             pendingProfile = null;
         });
 
-        // Vingerafdruk authenticatie via WebAuthn API
         document.getElementById('fingerprint-btn').addEventListener('click', async () => {
             if (!window.PublicKeyCredential) {
                 alert('Biometrische authenticatie wordt niet ondersteund op dit apparaat of browser.');
@@ -623,9 +689,11 @@
             detailModal.style.display = 'none';
         });
 
-        document.getElementById('close-player-btn').addEventListener('click', () => {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('embed-container').innerHTML = '';
+        // Sluiten eigen speler
+        document.getElementById('close-custom-player').addEventListener('click', () => {
+            customVideo.pause();
+            customVideo.src = "";
+            customPlayerContainer.style.display = 'none';
         });
 
         document.getElementById('setting-theme-color').addEventListener('input', (e) => {
@@ -743,7 +811,7 @@
             if(settings.themeColor) document.documentElement.style.setProperty('--primary', settings.themeColor);
             if(settings.avatar) document.getElementById('nav-avatar').src = settings.avatar;
             if(settings.navPos) document.body.className = settings.navPos;
-            else document.body.className = 'nav-top';
+            else document.body.className = 'nav-bottom';
         }
 
         document.getElementById('nav-home').addEventListener('click', () => {
@@ -965,17 +1033,17 @@
                         }
                     });
 
-                    seasonSelect.onchange = () => loadEpisodes(item.id, seasonSelect.value, apiKey);
-                    if (data.seasons.length > 0) loadEpisodes(item.id, data.seasons[0].season_number, apiKey);
+                    seasonSelect.onchange = () => loadEpisodes(item.id, seasonSelect.value, apiKey, data.name || item.name);
+                    if (data.seasons.length > 0) loadEpisodes(item.id, data.seasons[0].season_number, apiKey, data.name || item.name);
                 } else {
-                    currentPlayParams = { type: 'movie', tmdbId: item.id };
+                    currentPlayParams = { type: 'movie', title: item.title || item.name, overview: item.overview };
                     renderPlayerButton();
                 }
 
             } catch (err) { console.error(err); }
         }
 
-        async function loadEpisodes(tvId, seasonNumber, apiKey) {
+        async function loadEpisodes(tvId, seasonNumber, apiKey, showName) {
             const container = document.getElementById('episodes-container');
             container.innerHTML = 'Laden...';
             try {
@@ -997,8 +1065,13 @@
                             </div>
                         `;
                         card.addEventListener('click', () => {
-                            currentPlayParams = { type: 'tv', tmdbId: tvId, season: seasonNumber, episode: ep.episode_number };
-                            openFullscreenEmbed();
+                            currentPlayParams = {
+                                type: 'tv',
+                                title: showName,
+                                subtitle: `S${seasonNumber} E${ep.episode_number} • ${ep.name}`,
+                                overview: ep.overview || currentActiveItem.overview
+                            };
+                            openCustomPlayer();
                         });
                         container.appendChild(card);
                     });
@@ -1008,45 +1081,109 @@
 
         function renderPlayerButton() {
             const streamsContainer = document.getElementById('streams-list');
-            const rdKey = document.getElementById('setting-realdebrid-key').value;
-            
             streamsContainer.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-weight:bold; color:#fff; font-size: 12px;">${rdKey ? '⚡ Real-Debrid High-Speed Stream' : 'HD Stream (Standaard)'}</div>
-                        <div style="font-size:10px; color:#888;">Multi-server failover met automatische ondertiteling</div>
+                        <div style="font-weight:bold; color:#fff; font-size: 12px;">⚡ Ranger HD Native Player</div>
+                        <div style="font-size:10px; color:#888;">Direct afspelen met pauze-info & bediening</div>
                     </div>
                     <button id="start-movie-btn" style="background:var(--primary); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 11px;" tabindex="0">Afspelen</button>
                 </div>
             `;
-            document.getElementById('start-movie-btn').onclick = () => openFullscreenEmbed();
+            document.getElementById('start-movie-btn').onclick = () => {
+                currentPlayParams = {
+                    type: 'movie',
+                    title: currentActiveItem.title || currentActiveItem.name,
+                    subtitle: 'FILM',
+                    overview: currentActiveItem.overview
+                };
+                openCustomPlayer();
+            };
         }
 
-        window.openFullscreenEmbed = function() {
+        window.openCustomPlayer = function() {
             if(!currentPlayParams) return;
             detailModal.style.display = 'none';
-            const overlay = document.getElementById('player-overlay');
-            const container = document.getElementById('embed-container');
-            const serverChoice = document.getElementById('server-switcher').value;
-            const subLang = document.getElementById('setting-sub-lang').value;
 
-            let url = '';
-            if(currentPlayParams.type === 'movie') {
-                if(serverChoice === 'embedsu') url = `https://embed.su/embed/movie/${currentPlayParams.tmdbId}?sub.lang=${subLang}`;
-                else url = `https://vidlink.pro/movie/${currentPlayParams.tmdbId}?sub=${subLang}`;
-            } else {
-                if(serverChoice === 'embedsu') url = `https://embed.su/embed/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub.lang=${subLang}`;
-                else url = `https://vidlink.pro/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub=${subLang}`;
-            }
+            // Voorbeeldvideo bron (Vervang dit eventueel met je eigen stream-URL / Debrid link)
+            customVideo.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
             
-            container.innerHTML = `<iframe src="${url}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
-            overlay.style.display = 'flex';
+            // Zet de tekst in de pauze-overlay en topbalk
+            document.getElementById('overlay-title').innerText = currentPlayParams.title;
+            document.getElementById('overlay-ep').innerText = currentPlayParams.subtitle || 'VIDEO';
+            document.getElementById('overlay-desc').innerText = currentPlayParams.overview || 'Geen beschrijving beschikbaar.';
+            document.getElementById('player-top-title').innerText = currentPlayParams.title;
+
+            customPlayerContainer.style.display = 'flex';
+            customVideo.play();
         }
 
-        document.getElementById('server-switcher').addEventListener('change', () => {
-            if(document.getElementById('player-overlay').style.display === 'flex') {
-                openFullscreenEmbed();
+        // Eigen speler bedieningslogica
+        function togglePlay() {
+            if (customVideo.paused) {
+                customVideo.play();
+            } else {
+                customVideo.pause();
             }
+        }
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        customVideo.addEventListener('click', togglePlay);
+
+        customVideo.addEventListener('play', () => {
+            playPauseBtn.innerText = "⏸";
+            pauseOverlay.classList.remove('visible');
+        });
+
+        customVideo.addEventListener('pause', () => {
+            playPauseBtn.innerText = "▶";
+            pauseOverlay.classList.add('visible');
+        });
+
+        customVideo.addEventListener('timeupdate', () => {
+            const current = customVideo.currentTime;
+            const duration = customVideo.duration || 0;
+            const percent = (current / duration) * 100;
+            progressFilled.style.width = `${percent}%`;
+            timeDisplay.innerText = `${formatTime(current)} / ${formatTime(duration)}`;
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            customVideo.currentTime = pos * customVideo.duration;
+        });
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        document.getElementById('skip-back-btn').addEventListener('click', () => { customVideo.currentTime -= 10; });
+        document.getElementById('skip-forward-btn').addEventListener('click', () => { customVideo.currentTime += 10; });
+
+        document.getElementById('mute-btn').addEventListener('click', () => {
+            customVideo.muted = !customVideo.muted;
+            document.getElementById('mute-btn').innerText = customVideo.muted ? "🔇" : "🔊";
+        });
+
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                customPlayerContainer.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        customPlayerContainer.addEventListener('mousemove', () => {
+            controlsBar.classList.remove('hidden-cursor');
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                if(!customVideo.paused) {
+                    controlsBar.classList.add('hidden-cursor');
+                }
+            }, 3000);
         });
     </script>
 </body>
