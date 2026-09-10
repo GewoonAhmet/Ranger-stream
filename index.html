@@ -21,15 +21,16 @@
         .auth-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
         .auth-box button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
 
-        /* Sidebar Navigatie (Links) */
-        aside { width: var(--sidebar-width); background: #050505; display: flex; flex-direction: column; align-items: center; padding-top: 25px; gap: 25px; border-right: 1px solid #1a1a1a; z-index: 100; }
+        /* Sidebar Navigatie */
+        aside { width: var(--sidebar-width); background: #050505; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; border-right: 1px solid #1a1a1a; z-index: 100; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; margin-bottom: 10px; }
         .nav-icon { width: 24px; height: 24px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
         .nav-icon:hover, .nav-icon.active { opacity: 1; }
 
         /* Hoofdinhoud */
         main { flex: 1; overflow-y: auto; height: 100vh; position: relative; }
 
-        /* Hero Banner (Bovenaan zoals Inception voorbeeld) */
+        /* Hero Banner */
         .hero { position: relative; width: 100%; height: 55vh; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 40px; box-sizing: border-box; }
         .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, #0b0b0b 0%, rgba(11,11,11,0.6) 50%, rgba(11,11,11,0.2) 100%); }
         .hero-content { position: relative; z-index: 2; max-width: 600px; }
@@ -50,12 +51,12 @@
         .card-info { padding: 10px; }
         .card-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Streamingdiensten (Logo's bovenaan de rijen of filter) */
+        /* Streamingdiensten Bar */
         .provider-bar { display: flex; gap: 15px; padding: 20px 40px 0 40px; align-items: center; }
         .provider-logo { width: 40px; height: 40px; object-fit: contain; cursor: pointer; opacity: 0.5; border-radius: 50%; padding: 4px; border: 2px solid transparent; transition: all 0.2s; }
         .provider-logo.active { opacity: 1; border-color: var(--primary); background: #141414; }
 
-        /* Modals (Details & Instellingen) */
+        /* Modals */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box; }
         .modal-box { background: #141414; padding: 30px; border-radius: 8px; width: 600px; max-width: 100%; color: #fff; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
@@ -79,15 +80,16 @@
         </div>
     </div>
 
-    <!-- Hoofdapplicatie -->
-    <aside>
+    <!-- Sidebar Navigatie -->
+    <aside id="sidebar" class="hidden">
+        <img id="sidebar-avatar" class="profile-avatar" src="https://i.imgur.com/6VBx3io.png" title="Profiel">
         <svg class="nav-icon active" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         <svg class="nav-icon" id="open-settings" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
     </aside>
 
+    <!-- Hoofdapplicatie -->
     <main id="app-container" class="hidden">
-        <!-- Hero Section -->
         <div class="hero" id="hero-banner" style="background-image: url('https://image.tmdb.org/t/p/original/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg');">
             <div class="hero-content">
                 <h1 class="hero-title" id="hero-title">Inception</h1>
@@ -99,7 +101,6 @@
             </div>
         </div>
 
-        <!-- Streamingdiensten Kiezers -->
         <div class="provider-bar" id="provider-tabs">
             <img class="provider-logo active" src="https://images.ctfassets.net/4cd45et68cgf/7LrExJ6PAj6MSIPkDyCO86/542b1dfabbf39f9908af6946804cf946/Netflix-Symbol.png" data-provider="8" title="Netflix">
             <img class="provider-logo" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo_%282024%29.svg" data-provider="337" title="Disney+">
@@ -107,7 +108,6 @@
             <img class="provider-logo" src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Prime_Video_logo_%282024%29.svg" data-provider="119" title="Prime Video">
         </div>
 
-        <!-- Catalogus Sectie -->
         <div class="section-title">Populair & Aanbevolen</div>
         <div class="row-container" id="catalog-container">
             <p style="color: #777; padding-left: 40px;">Voer je TMDB-sleutel in bij instellingen om films te laden.</p>
@@ -132,20 +132,31 @@
     <!-- Instellingen Modal -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Cloud Instellingen</h3>
+            <h3>Account & Weergave Instellingen</h3>
+            
+            <label>Profielicoon</label>
+            <select id="setting-avatar">
+                <option value="https://i.imgur.com/6VBx3io.png">Standaard Rood</option>
+                <option value="https://i.imgur.com/9R41Kfe.png">Cool Blauw</option>
+                <option value="https://i.imgur.com/2Y0qQvk.png">Neon Groen</option>
+                <option value="https://i.imgur.com/5ZTt7ve.png">Gouden Kroon</option>
+            </select>
+
+            <label>Accentkleur (Thema)</label>
+            <input type="color" id="setting-theme-color" value="#e50914" style="height:40px; cursor:pointer;">
+
             <label>Real-Debrid Token</label>
             <input type="text" id="setting-debrid-token">
+
             <label>TMDB API Sleutel</label>
             <input type="text" id="setting-tmdb-key">
+
             <label>Ondertiteling Taal</label>
             <select id="setting-sub-lang">
                 <option value="nl">Nederlands</option>
                 <option value="en">Engels</option>
             </select>
-            <label>Ondertiteling Grootte (px)</label>
-            <input type="number" id="setting-sub-size" value="20">
-            <label>Ondertiteling Kleur</label>
-            <input type="color" id="setting-sub-color" value="#ffffff">
+
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                 <button id="close-settings" style="background:#333; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Sluiten</button>
                 <button id="save-settings" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Opslaan in Account</button>
@@ -174,7 +185,6 @@
 
         let currentUser = null;
         let selectedProvider = "8";
-        let activeHeroItem = null;
 
         document.getElementById('btn-login').addEventListener('click', async () => {
             try { await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value); }
@@ -191,11 +201,13 @@
                 currentUser = user;
                 document.getElementById('auth-container').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
+                document.getElementById('sidebar').classList.remove('hidden');
                 await loadSettings(user.uid);
             } else {
                 currentUser = null;
                 document.getElementById('auth-container').classList.remove('hidden');
                 document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('sidebar').classList.add('hidden');
             }
         });
 
@@ -206,31 +218,56 @@
         const detailModal = document.getElementById('detail-modal');
         document.getElementById('close-detail').addEventListener('click', () => detailModal.style.display = 'none');
 
+        document.getElementById('setting-theme-color').addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--primary', e.target.value);
+        });
+
         document.getElementById('save-settings').addEventListener('click', async () => {
             if(!currentUser) return;
             const settings = {
                 debridToken: document.getElementById('setting-debrid-token').value,
                 tmdbKey: document.getElementById('setting-tmdb-key').value,
                 subLang: document.getElementById('setting-sub-lang').value,
-                subSize: document.getElementById('setting-sub-size').value,
-                subColor: document.getElementById('setting-sub-color').value
+                avatar: document.getElementById('setting-avatar').value,
+                themeColor: document.getElementById('setting-theme-color').value
             };
-            await setDoc(doc(db, "users", currentUser.uid), settings, { merge: true });
-            settingsModal.style.display = 'none';
-            alert('Opgeslagen in je account!');
-            if(settings.tmdbKey) fetchCatalog();
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), settings, { merge: true });
+                settingsModal.style.display = 'none';
+                alert('Opgeslagen in je account!');
+                applySettings(settings);
+                if(settings.tmdbKey) fetchCatalog();
+            } catch(err) {
+                console.error("Opslaan mislukt:", err);
+                alert("Fout bij opslaan: " + err.message);
+            }
         });
 
         async function loadSettings(uid) {
-            const snap = await getDoc(doc(db, "users", uid));
-            if(snap.exists()) {
-                const d = snap.data();
-                document.getElementById('setting-debrid-token').value = d.debridToken || '';
-                document.getElementById('setting-tmdb-key').value = d.tmdbKey || '';
-                document.getElementById('setting-sub-lang').value = d.subLang || 'nl';
-                document.getElementById('setting-sub-size').value = d.subSize || '20';
-                document.getElementById('setting-sub-color').value = d.subColor || '#ffffff';
-                if(d.tmdbKey) fetchCatalog();
+            try {
+                const snap = await getDoc(doc(db, "users", uid));
+                if(snap.exists()) {
+                    const d = snap.data();
+                    document.getElementById('setting-debrid-token').value = d.debridToken || '';
+                    document.getElementById('setting-tmdb-key').value = d.tmdbKey || '';
+                    document.getElementById('setting-sub-lang').value = d.subLang || 'nl';
+                    if(d.avatar) document.getElementById('setting-avatar').value = d.avatar;
+                    if(d.themeColor) document.getElementById('setting-theme-color').value = d.themeColor;
+                    
+                    applySettings(d);
+                    if(d.tmdbKey) fetchCatalog();
+                }
+            } catch(e) {
+                console.error("Laden mislukt:", e);
+            }
+        }
+
+        function applySettings(settings) {
+            if(settings.themeColor) {
+                document.documentElement.style.setProperty('--primary', settings.themeColor);
+            }
+            if(settings.avatar) {
+                document.getElementById('sidebar-avatar').src = settings.avatar;
             }
         }
 
@@ -253,10 +290,7 @@
                 const data = await res.json();
                 if(data.results && data.results.length > 0) {
                     container.innerHTML = '';
-                    
-                    // Zet de eerste film direct in de Hero banner bovenaan
-                    activeHeroItem = data.results[0];
-                    updateHero(activeHeroItem, apiKey);
+                    updateHero(data.results[0], apiKey);
 
                     data.results.forEach(item => {
                         const poster = item.backdrop_path ? `https://image.tmdb.org/t/p/w500${item.backdrop_path}` : 'https://via.placeholder.com/300x169?text=Geen+Beeld';
