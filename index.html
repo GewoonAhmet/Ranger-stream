@@ -84,9 +84,13 @@
         .card-info { padding: 8px; }
         .card-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Modals */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; justify-content: center; align-items: center; overflow-y: auto; padding: 15px; box-sizing: border-box; }
-        .modal-box { background: #141414; padding: 20px; border-radius: 12px; width: 100%; max-width: 700px; color: #fff; border: 1px solid rgba(255,255,255,0.1); max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
+        /* Modals & Geoptimaliseerde Popup met vaste onderkant */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
+        .modal-box { background: #141414; padding: 20px; border-radius: 12px; width: 100%; max-width: 700px; color: #fff; border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; display: flex; flex-direction: column; box-sizing: border-box; }
+        .modal-scroll-content { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .modal-scroll-content::-webkit-scrollbar { width: 6px; }
+        .modal-scroll-content::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        
         .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         
         .cast-row { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
@@ -129,37 +133,12 @@
 
         .settings-save-bar { margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
 
-        /* Eigen Videospeler Overlay */
-        #custom-player-container { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        #custom-video { width: 100%; height: 100%; object-fit: contain; }
-
-        /* Pausenscherm & Info Overlay (Netflix Stijl) */
-        #pause-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; padding: 50px; box-sizing: border-box; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100000; }
-        #pause-overlay.visible { opacity: 1; pointer-events: auto; }
-        .pause-info-box { max-width: 500px; border-left: 4px solid var(--primary); padding-left: 20px; }
-        .pause-subtitle { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #aaa; margin-bottom: 5px; }
-        .pause-title { font-size: 32px; font-weight: bold; color: #fff; margin: 0 0 8px 0; text-transform: uppercase; }
-        .pause-ep-info { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 12px; }
-        .pause-desc { font-size: 13px; line-height: 1.4; color: #ddd; }
-
-        /* Strakke Bedieningsbalk Onderaan */
-        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%); padding: 20px; display: flex; flex-direction: column; gap: 10px; opacity: 1; transition: opacity 0.3s ease; z-index: 100001; }
-        .player-controls.hidden-cursor { opacity: 0; cursor: none; }
-
-        .progress-bar-container { width: 100%; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; cursor: pointer; position: relative; }
-        .progress-bar-filled { height: 100%; background: var(--primary); width: 0%; border-radius: 3px; position: relative; }
-        .progress-handle { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; right: -6px; top: -3.5px; display: none; }
-        .progress-bar-container:hover .progress-handle { display: block; }
-
-        .controls-row { display: flex; justify-content: space-between; align-items: center; }
-        .controls-left, .controls-right { display: flex; align-items: center; gap: 15px; }
-        .ctrl-btn { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; padding: 5px; }
-        .ctrl-btn:hover { color: var(--primary); }
-        .time-display { font-size: 12px; color: #ccc; font-variant-numeric: tabular-nums; }
-
-        /* Top Bar in Speler */
-        .player-top-bar { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100001; }
-        .back-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        /* Speler Overlay met Vidlink/Embedsu/Cinesrc */
+        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; }
+        .player-top-bar { position: absolute; top: 10px; right: 15px; display: flex; gap: 8px; align-items: center; z-index: 100000; }
+        .server-select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+        #player-overlay iframe { width: 100%; height: 100%; border: none; margin-top: 40px; }
+        .close-player-btn { background: rgba(20,20,20,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body class="nav-bottom">
@@ -204,7 +183,7 @@
         </div>
     </div>
 
-    <!-- Navigatie Dock -->
+    <!-- Navigatie Container -->
     <nav id="main-nav" class="hidden">
         <img id="nav-avatar" class="profile-avatar" title="Profiel" tabindex="0" onclick="showProfileSelector()">
         <button class="nav-item active" id="nav-home" tabindex="0">
@@ -225,47 +204,17 @@
         </button>
     </nav>
 
-    <!-- Eigen Videospeler Overlay -->
-    <div id="custom-player-container">
-        <video id="custom-video" crossorigin="anonymous" playsinline></video>
-        
+    <!-- Speler Overlay -->
+    <div id="player-overlay">
         <div class="player-top-bar">
-            <button class="back-btn" id="close-custom-player">✕ Sluiten</button>
-            <div id="player-top-title" style="font-weight:bold; font-size:14px; text-shadow:0 2px 4px rgba(0,0,0,0.8);"></div>
-            <div></div>
+            <select id="server-switcher" class="server-select">
+                <option value="vidlink">Server 1: Vidlink.pro</option>
+                <option value="embedsu">Server 2: Embed.su</option>
+                <option value="cinesrc">Server 3: Cinesrc.st</option>
+            </select>
+            <button class="close-player-btn" id="close-player-btn" tabindex="0">✕ Sluiten</button>
         </div>
-
-        <!-- Pauze & Info Overlay (Net zoals jouw voorbeeld) -->
-        <div id="pause-overlay">
-            <div class="pause-info-box">
-                <div class="pause-subtitle">You are watching</div>
-                <h1 class="pause-title" id="overlay-title">TULSA KING</h1>
-                <div class="pause-ep-info" id="overlay-ep">S1 E4 • Visitation Place</div>
-                <div class="pause-desc" id="overlay-desc">Beschrijving van de aflevering of film komt hier te staan...</div>
-            </div>
-        </div>
-
-        <!-- Onderste Bedieningsbalk -->
-        <div class="player-controls" id="player-controls-bar">
-            <div class="progress-bar-container" id="progress-container">
-                <div class="progress-bar-filled" id="progress-filled">
-                    <div class="progress-handle"></div>
-                </div>
-            </div>
-            <div class="controls-row">
-                <div class="controls-left">
-                    <button class="ctrl-btn" id="play-pause-btn">▶</button>
-                    <button class="ctrl-btn" id="skip-back-btn">↺ 10s</button>
-                    <button class="ctrl-btn" id="skip-forward-btn">10s ↻</button>
-                    <button class="ctrl-btn" id="mute-btn">🔊</button>
-                    <span class="time-display" id="time-display">00:00 / 00:00</span>
-                </div>
-                <div class="controls-right">
-                    <button class="ctrl-btn" id="pip-btn" title="Picture-in-Picture">📺</button>
-                    <button class="ctrl-btn" id="fullscreen-btn" title="Volledig scherm">⛶</button>
-                </div>
-            </div>
-        </div>
+        <div id="embed-container" style="width:100%; height:100%;"></div>
     </div>
 
     <!-- Hoofdapplicatie -->
@@ -336,25 +285,29 @@
     <!-- Detail Modal -->
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-box">
-            <h2 id="modal-title" style="margin-top:0; color:var(--primary); font-size: 20px;"></h2>
-            <p id="modal-meta" style="color:#aaa; font-size:11px;"></p>
-            <p id="modal-overview" style="font-size:13px; line-height:1.4;"></p>
-            
-            <div id="seasons-section" class="hidden" style="margin: 15px 0;">
-                <label style="font-weight:bold; font-size:12px;">Seizoen:</label>
-                <select id="season-select" class="filter-select" style="margin-top:5px; margin-bottom:10px; width:100%;" tabindex="0"></select>
-                <div id="episodes-container" style="max-height: 200px; overflow-y: auto;"></div>
+            <div class="modal-scroll-content">
+                <h2 id="modal-title" style="margin-top:0; color:var(--primary); font-size: 20px;"></h2>
+                <p id="modal-meta" style="color:#aaa; font-size:11px;"></p>
+                <p id="modal-overview" style="font-size:13px; line-height:1.4;"></p>
+                
+                <div id="seasons-section" class="hidden" style="margin: 15px 0;">
+                    <label style="font-weight:bold; font-size:12px;">Seizoen:</label>
+                    <select id="season-select" class="filter-select" style="margin-top:5px; margin-bottom:10px; width:100%;" tabindex="0"></select>
+                    <div id="episodes-container" style="max-height: 180px; overflow-y: auto;"></div>
+                </div>
+
+                <div id="player-section" style="margin: 15px 0; background: #1c1c1c; padding: 12px; border-radius: 6px; border: 1px solid #333;">
+                    <h4 style="margin: 0 0 8px 0; color: #46d369; font-size: 13px;">Direct Afspelen (Vidlink / Embed.su / Cinesrc)</h4>
+                    <div id="streams-list"></div>
+                </div>
+
+                <div id="modal-trailer" style="margin: 15px 0;"></div>
+                <h4 style="margin: 10px 0 5px 0; font-size:13px;">Hoofdrolspelers</h4>
+                <div class="cast-row" id="modal-cast"></div>
             </div>
 
-            <div id="player-section" style="margin: 15px 0; background: #1c1c1c; padding: 12px; border-radius: 6px; border: 1px solid #333;">
-                <h4 style="margin: 0 0 8px 0; color: #46d369; font-size: 13px;">Direct Afspelen (Eigen Speler)</h4>
-                <div id="streams-list"></div>
-            </div>
-
-            <div id="modal-trailer" style="margin: 15px 0;"></div>
-            <h4 style="margin: 10px 0 5px 0; font-size:13px;">Hoofdrolspelers</h4>
-            <div class="cast-row" id="modal-cast"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; gap: 10px;">
+            <!-- Vaste onderkant met actieknoppen -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:12px; border-top:1px solid #222; gap: 10px; flex-shrink:0;">
                 <button id="modal-watchlist-btn" style="background:#222; color:#fff; border:1px solid #444; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px; flex: 1;" tabindex="0">+ Lijst</button>
                 <button id="close-detail" style="background:#333; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:11px;" tabindex="0">Sluiten</button>
             </div>
@@ -369,6 +322,7 @@
                 <button class="settings-tab" data-tab="tab-playback" tabindex="0">Playback</button>
                 <button class="settings-tab" data-tab="tab-appearance" tabindex="0">Appearance</button>
                 <button class="settings-tab" data-tab="tab-subtitles" tabindex="0">Subtitles</button>
+                <button class="settings-tab" data-tab="tab-opensubtitles" tabindex="0">OpenSubtitles</button>
                 <button class="settings-tab" data-tab="tab-integrations" tabindex="0">Integrations</button>
             </div>
             
@@ -474,6 +428,20 @@
                     </div>
                 </div>
 
+                <div id="tab-opensubtitles" class="settings-tab-content hidden">
+                    <h2 class="settings-section-title">OpenSubtitles</h2>
+                    <div class="settings-section-desc">Configureer je OpenSubtitles account</div>
+                    <div class="setting-row">
+                        <div class="setting-label-group">
+                            <div class="setting-title">API Gebruikersnaam / Token</div>
+                            <div class="setting-desc">Voor prioriteit en extra talen</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="setting-opensubtitles-key" placeholder="OpenSubtitles API Key" tabindex="0">
+                        </div>
+                    </div>
+                </div>
+
                 <div id="tab-integrations" class="settings-tab-content hidden">
                     <h2 class="settings-section-title">Integrations</h2>
                     <div class="settings-section-desc">Configure API keys</div>
@@ -555,17 +523,6 @@
         let currentPlayParams = null;
         let traktUsername = '';
         let traktClientId = 'c75a463e26456729227f4ca1349f257a4195155167ea88fcf7b5e43a6d96a77d';
-
-        // Eigen Speler DOM Elementen
-        const customPlayerContainer = document.getElementById('custom-player-container');
-        const customVideo = document.getElementById('custom-video');
-        const pauseOverlay = document.getElementById('pause-overlay');
-        const controlsBar = document.getElementById('player-controls-bar');
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        const progressContainer = document.getElementById('progress-container');
-        const progressFilled = document.getElementById('progress-filled');
-        const timeDisplay = document.getElementById('time-display');
-        let hideTimeout;
 
         document.getElementById('btn-login').addEventListener('click', async () => {
             try { await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value); }
@@ -689,11 +646,9 @@
             detailModal.style.display = 'none';
         });
 
-        // Sluiten eigen speler
-        document.getElementById('close-custom-player').addEventListener('click', () => {
-            customVideo.pause();
-            customVideo.src = "";
-            customPlayerContainer.style.display = 'none';
+        document.getElementById('close-player-btn').addEventListener('click', () => {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('embed-container').innerHTML = '';
         });
 
         document.getElementById('setting-theme-color').addEventListener('input', (e) => {
@@ -741,6 +696,7 @@
                 realDebridKey: document.getElementById('setting-realdebrid-key').value,
                 traktUser: document.getElementById('setting-trakt-user').value,
                 traktClient: document.getElementById('setting-trakt-client').value,
+                opensubtitlesKey: document.getElementById('setting-opensubtitles-key').value,
                 avatar: document.getElementById('setting-avatar').value,
                 themeColor: document.getElementById('setting-theme-color').value,
                 navPos: document.getElementById('setting-nav-pos').value,
@@ -786,6 +742,7 @@
                     document.getElementById('setting-realdebrid-key').value = d.realDebridKey || '';
                     document.getElementById('setting-trakt-user').value = d.traktUser || '';
                     document.getElementById('setting-trakt-client').value = d.traktClient || '';
+                    document.getElementById('setting-opensubtitles-key').value = d.opensubtitlesKey || '';
                     if(d.avatar) document.getElementById('setting-avatar').value = d.avatar;
                     if(d.themeColor) document.getElementById('setting-theme-color').value = d.themeColor;
                     if(d.navPos) document.getElementById('setting-nav-pos').value = d.navPos;
@@ -1014,7 +971,7 @@
 
                 const trailer = data.videos?.results?.find(v => v.site === 'YouTube' && v.type === 'Trailer');
                 if(trailer) {
-                    document.getElementById('modal-trailer').innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${trailer.key}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe>`;
+                    document.getElementById('modal-trailer').innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${trailer.key}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe>`;
                 }
 
                 const castBox = document.getElementById('modal-cast');
@@ -1033,17 +990,17 @@
                         }
                     });
 
-                    seasonSelect.onchange = () => loadEpisodes(item.id, seasonSelect.value, apiKey, data.name || item.name);
-                    if (data.seasons.length > 0) loadEpisodes(item.id, data.seasons[0].season_number, apiKey, data.name || item.name);
+                    seasonSelect.onchange = () => loadEpisodes(item.id, seasonSelect.value, apiKey);
+                    if (data.seasons.length > 0) loadEpisodes(item.id, data.seasons[0].season_number, apiKey);
                 } else {
-                    currentPlayParams = { type: 'movie', title: item.title || item.name, overview: item.overview };
+                    currentPlayParams = { type: 'movie', tmdbId: item.id };
                     renderPlayerButton();
                 }
 
             } catch (err) { console.error(err); }
         }
 
-        async function loadEpisodes(tvId, seasonNumber, apiKey, showName) {
+        async function loadEpisodes(tvId, seasonNumber, apiKey) {
             const container = document.getElementById('episodes-container');
             container.innerHTML = 'Laden...';
             try {
@@ -1065,13 +1022,8 @@
                             </div>
                         `;
                         card.addEventListener('click', () => {
-                            currentPlayParams = {
-                                type: 'tv',
-                                title: showName,
-                                subtitle: `S${seasonNumber} E${ep.episode_number} • ${ep.name}`,
-                                overview: ep.overview || currentActiveItem.overview
-                            };
-                            openCustomPlayer();
+                            currentPlayParams = { type: 'tv', tmdbId: tvId, season: seasonNumber, episode: ep.episode_number };
+                            openFullscreenEmbed();
                         });
                         container.appendChild(card);
                     });
@@ -1081,109 +1033,56 @@
 
         function renderPlayerButton() {
             const streamsContainer = document.getElementById('streams-list');
+            const rdKey = document.getElementById('setting-realdebrid-key').value;
+            
             streamsContainer.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-weight:bold; color:#fff; font-size: 12px;">⚡ Ranger HD Native Player</div>
-                        <div style="font-size:10px; color:#888;">Direct afspelen met pauze-info & bediening</div>
+                        <div style="font-weight:bold; color:#fff; font-size: 12px;">${rdKey ? '⚡ Real-Debrid High-Speed Stream' : 'HD Stream (Vidlink / Embed.su / Cinesrc)'}</div>
+                        <div style="font-size:10px; color:#888;">Multi-server failover met Nederlandse ondertiteling</div>
                     </div>
                     <button id="start-movie-btn" style="background:var(--primary); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 11px;" tabindex="0">Afspelen</button>
                 </div>
             `;
-            document.getElementById('start-movie-btn').onclick = () => {
-                currentPlayParams = {
-                    type: 'movie',
-                    title: currentActiveItem.title || currentActiveItem.name,
-                    subtitle: 'FILM',
-                    overview: currentActiveItem.overview
-                };
-                openCustomPlayer();
-            };
+            document.getElementById('start-movie-btn').onclick = () => openFullscreenEmbed();
         }
 
-        window.openCustomPlayer = function() {
+        window.openFullscreenEmbed = function() {
             if(!currentPlayParams) return;
             detailModal.style.display = 'none';
+            const overlay = document.getElementById('player-overlay');
+            const container = document.getElementById('embed-container');
+            const serverChoice = document.getElementById('server-switcher').value;
+            const subLang = document.getElementById('setting-sub-lang').value || 'nl';
+            const skipIntro = document.getElementById('setting-skip-intro').checked ? 'true' : 'false';
 
-            // Voorbeeldvideo bron (Vervang dit eventueel met je eigen stream-URL / Debrid link)
-            customVideo.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-            
-            // Zet de tekst in de pauze-overlay en topbalk
-            document.getElementById('overlay-title').innerText = currentPlayParams.title;
-            document.getElementById('overlay-ep').innerText = currentPlayParams.subtitle || 'VIDEO';
-            document.getElementById('overlay-desc').innerText = currentPlayParams.overview || 'Geen beschrijving beschikbaar.';
-            document.getElementById('player-top-title').innerText = currentPlayParams.title;
-
-            customPlayerContainer.style.display = 'flex';
-            customVideo.play();
-        }
-
-        // Eigen speler bedieningslogica
-        function togglePlay() {
-            if (customVideo.paused) {
-                customVideo.play();
-            } else {
-                customVideo.pause();
-            }
-        }
-
-        playPauseBtn.addEventListener('click', togglePlay);
-        customVideo.addEventListener('click', togglePlay);
-
-        customVideo.addEventListener('play', () => {
-            playPauseBtn.innerText = "⏸";
-            pauseOverlay.classList.remove('visible');
-        });
-
-        customVideo.addEventListener('pause', () => {
-            playPauseBtn.innerText = "▶";
-            pauseOverlay.classList.add('visible');
-        });
-
-        customVideo.addEventListener('timeupdate', () => {
-            const current = customVideo.currentTime;
-            const duration = customVideo.duration || 0;
-            const percent = (current / duration) * 100;
-            progressFilled.style.width = `${percent}%`;
-            timeDisplay.innerText = `${formatTime(current)} / ${formatTime(duration)}`;
-        });
-
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            customVideo.currentTime = pos * customVideo.duration;
-        });
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        document.getElementById('skip-back-btn').addEventListener('click', () => { customVideo.currentTime -= 10; });
-        document.getElementById('skip-forward-btn').addEventListener('click', () => { customVideo.currentTime += 10; });
-
-        document.getElementById('mute-btn').addEventListener('click', () => {
-            customVideo.muted = !customVideo.muted;
-            document.getElementById('mute-btn').innerText = customVideo.muted ? "🔇" : "🔊";
-        });
-
-        document.getElementById('fullscreen-btn').addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                customPlayerContainer.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        });
-
-        customPlayerContainer.addEventListener('mousemove', () => {
-            controlsBar.classList.remove('hidden-cursor');
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => {
-                if(!customVideo.paused) {
-                    controlsBar.classList.add('hidden-cursor');
+            let url = '';
+            if(currentPlayParams.type === 'movie') {
+                if(serverChoice === 'vidlink') {
+                    url = `https://vidlink.pro/movie/${currentPlayParams.tmdbId}?sub=${subLang}&forcedSub=${subLang}&skipIntro=${skipIntro}`;
+                } else if(serverChoice === 'embedsu') {
+                    url = `https://embed.su/embed/movie/${currentPlayParams.tmdbId}?sub.lang=${subLang}&sub.sub=nl`;
+                } else if(serverChoice === 'cinesrc') {
+                    url = `https://cinesrc.st/embed/movie/${currentPlayParams.tmdbId}`;
                 }
-            }, 3000);
+            } else {
+                if(serverChoice === 'vidlink') {
+                    url = `https://vidlink.pro/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub=${subLang}&forcedSub=${subLang}&skipIntro=${skipIntro}`;
+                } else if(serverChoice === 'embedsu') {
+                    url = `https://embed.su/embed/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}?sub.lang=${subLang}&sub.sub=nl`;
+                } else if(serverChoice === 'cinesrc') {
+                    url = `https://cinesrc.st/embed/tv/${currentPlayParams.tmdbId}/${currentPlayParams.season}/${currentPlayParams.episode}`;
+                }
+            }
+            
+            container.innerHTML = `<iframe src="${url}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowpaymentrequest></iframe>`;
+            overlay.style.display = 'flex';
+        }
+
+        document.getElementById('server-switcher').addEventListener('change', () => {
+            if(document.getElementById('player-overlay').style.display === 'flex') {
+                openFullscreenEmbed();
+            }
         });
     </script>
 </body>
