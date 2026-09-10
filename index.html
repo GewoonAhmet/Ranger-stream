@@ -382,6 +382,16 @@
 
                     <div class="setting-row">
                         <div class="setting-label-group">
+                            <div class="setting-title">Real-Debrid API Token</div>
+                            <div class="setting-desc">Voor directe High-Speed debrid streams</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="setting-realdebrid-key" placeholder="Plak Real-Debrid token">
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label-group">
                             <div class="setting-title">Trakt.tv Gebruikersnaam</div>
                             <div class="setting-desc">Voor synchronisatie van je kijkgeschiedenis</div>
                         </div>
@@ -528,6 +538,7 @@
             if(!currentUser) return;
             const settings = {
                 tmdbKey: document.getElementById('setting-tmdb-key').value,
+                realDebridKey: document.getElementById('setting-realdebrid-key').value,
                 traktUser: document.getElementById('setting-trakt-user').value,
                 traktClient: document.getElementById('setting-trakt-client').value,
                 avatar: document.getElementById('setting-avatar').value,
@@ -571,6 +582,7 @@
                 if(snap.exists()) {
                     const d = snap.data();
                     document.getElementById('setting-tmdb-key').value = d.tmdbKey || '';
+                    document.getElementById('setting-realdebrid-key').value = d.realDebridKey || '';
                     document.getElementById('setting-trakt-user').value = d.traktUser || '';
                     document.getElementById('setting-trakt-client').value = d.traktClient || '';
                     if(d.avatar) document.getElementById('setting-avatar').value = d.avatar;
