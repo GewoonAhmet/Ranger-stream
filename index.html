@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranger Stream</title>
+    <title>Nuvio Stream</title>
     <style>
         :root {
             --bg-color: #0b0b0b;
-            --sidebar-width: 70px;
             --primary: #e50914;
         }
 
-        body { background: var(--bg-color); color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
+        body { background: var(--bg-color); color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; }
         .hidden { display: none !important; }
 
         /* Login Scherm */
@@ -21,14 +20,24 @@
         .auth-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
         .auth-box button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
 
-        /* Sidebar Navigatie */
-        aside { width: var(--sidebar-width); background: #050505; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; border-right: 1px solid #1a1a1a; z-index: 100; }
-        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; margin-bottom: 10px; }
-        .nav-icon { width: 24px; height: 24px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
-        .nav-icon:hover, .nav-icon.active { opacity: 1; }
+        /* Navigatie Container (Dock of Sidebar) */
+        nav { z-index: 1000; position: fixed; display: flex; align-items: center; background: rgba(20, 20, 20, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; }
+        
+        /* Layout opties voor de navigatie */
+        body.nav-top nav { top: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 8px 20px; gap: 20px; height: 55px; }
+        body.nav-bottom nav { bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 8px 20px; gap: 20px; height: 55px; }
+        body.nav-left nav { top: 0; left: 0; height: 100vh; width: 75px; flex-direction: column; padding-top: 25px; gap: 20px; border-right: 1px solid #1a1a1a; border-radius: 0; }
+
+        .nav-item { display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s, color 0.2s; font-size: 13px; font-weight: bold; background: none; border: none; color: #fff; }
+        .nav-item:hover, .nav-item.active { opacity: 1; color: var(--primary); }
+        .nav-icon { width: 20px; height: 20px; }
+        .profile-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
 
         /* Hoofdinhoud */
-        main { flex: 1; overflow-y: auto; height: 100vh; position: relative; }
+        main { flex: 1; overflow-y: auto; height: 100vh; width: 100%; position: relative; box-sizing: border-box; }
+        body.nav-top main { padding-top: 70px; }
+        body.nav-bottom main { padding-bottom: 70px; }
+        body.nav-left main { padding-left: 75px; }
 
         /* Hero Banner */
         .hero { position: relative; width: 100%; height: 50vh; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 40px; box-sizing: border-box; }
@@ -75,16 +84,10 @@
         .episode-card:hover { background: #252525; }
         .episode-card img { width: 120px; height: 70px; object-fit: cover; border-radius: 4px; }
         
-        /* Styling van de ondertiteling in de speler */
-        video::cue {
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-        }
+        video::cue { background-color: rgba(0, 0, 0, 0.7); color: #ffffff; font-family: Arial, sans-serif; font-size: 18px; }
     </style>
 </head>
-<body>
+<body class="nav-top">
 
     <!-- Inlogscherm -->
     <div id="auth-container">
@@ -98,13 +101,22 @@
         </div>
     </div>
 
-    <!-- Sidebar Navigatie -->
-    <aside id="sidebar" class="hidden">
-        <img id="sidebar-avatar" class="profile-avatar" src="https://i.imgur.com/6VBx3io.png" title="Profiel">
-        <svg id="nav-home" class="nav-icon active" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <svg id="nav-search" class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        <svg class="nav-icon" id="open-settings" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </aside>
+    <!-- Zwevende Navigatie / Dock (Positie aanpasbaar via instellingen) -->
+    <nav id="main-nav" class="hidden">
+        <img id="nav-avatar" class="profile-avatar" title="Profiel">
+        <button class="nav-item active" id="nav-home">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" id="nav-search-btn">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <span>Zoeken</span>
+        </button>
+        <button class="nav-item" id="open-settings">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>Instellingen</span>
+        </button>
+    </nav>
 
     <!-- Hoofdapplicatie -->
     <main id="app-container" class="hidden">
@@ -188,6 +200,13 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Account & Weergave Instellingen</h3>
+            <label>Navigatie Positie</label>
+            <select id="setting-nav-pos">
+                <option value="nav-top">Boven (Zwevend dock)</option>
+                <option value="nav-bottom">Onder (Zwevend dock)</option>
+                <option value="nav-left">Links (Zijbalk)</option>
+            </select>
+
             <label>Profielicoon</label>
             <select id="setting-avatar">
                 <option value="https://i.imgur.com/6VBx3io.png">Standaard Rood</option>
@@ -257,13 +276,13 @@
                 currentUser = user;
                 document.getElementById('auth-container').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
-                document.getElementById('sidebar').classList.remove('hidden');
+                document.getElementById('main-nav').classList.remove('hidden');
                 await loadSettings(user.uid);
             } else {
                 currentUser = null;
-                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('auth-container').classList.remove('hidden');
                 document.getElementById('app-container').classList.add('hidden');
-                document.getElementById('sidebar').classList.add('hidden');
+                document.getElementById('main-nav').classList.add('hidden');
             }
         });
 
@@ -281,6 +300,10 @@
             document.documentElement.style.setProperty('--primary', e.target.value);
         });
 
+        document.getElementById('setting-nav-pos').addEventListener('change', (e) => {
+            document.body.className = e.target.value;
+        });
+
         document.getElementById('save-settings').addEventListener('click', async () => {
             if(!currentUser) return;
             const settings = {
@@ -289,7 +312,8 @@
                 subLang: document.getElementById('setting-sub-lang').value,
                 skipIntro: document.getElementById('setting-skip-intro').checked,
                 avatar: document.getElementById('setting-avatar').value,
-                themeColor: document.getElementById('setting-theme-color').value
+                themeColor: document.getElementById('setting-theme-color').value,
+                navPos: document.getElementById('setting-nav-pos').value
             };
             try {
                 await setDoc(doc(db, "users", currentUser.uid), settings, { merge: true });
@@ -314,6 +338,7 @@
                     document.getElementById('setting-skip-intro').checked = d.skipIntro !== false;
                     if(d.avatar) document.getElementById('setting-avatar').value = d.avatar;
                     if(d.themeColor) document.getElementById('setting-theme-color').value = d.themeColor;
+                    if(d.navPos) document.getElementById('setting-nav-pos').value = d.navPos;
                     
                     applySettings(d);
                     if(d.tmdbKey) fetchCatalog();
@@ -323,10 +348,17 @@
 
         function applySettings(settings) {
             if(settings.themeColor) document.documentElement.style.setProperty('--primary', settings.themeColor);
-            if(settings.avatar) document.getElementById('sidebar-avatar').src = settings.avatar;
+            if(settings.avatar) {
+                document.getElementById('nav-avatar').src = settings.avatar;
+            }
+            if(settings.navPos) {
+                document.body.className = settings.navPos;
+            } else {
+                document.body.className = 'nav-top';
+            }
         }
 
-        document.getElementById('nav-search').addEventListener('click', () => {
+        document.getElementById('nav-search-btn').addEventListener('click', () => {
             document.getElementById('search-input').focus();
         });
 
@@ -340,7 +372,7 @@
         });
 
         document.querySelectorAll('.filter-select').forEach(select => {
-            if(select.id !== 'season-select') {
+            if(select.id !== 'season-select' && select.id !== 'setting-nav-pos') {
                 select.addEventListener('change', () => fetchCatalog());
             }
         });
@@ -528,27 +560,30 @@
             const videoContainer = document.getElementById('video-container');
             const skipIntro = document.getElementById('setting-skip-intro').checked;
             const subLang = document.getElementById('setting-sub-lang').value || 'nl';
-
-            // Voorbeeld openbare Nederlandse ondertiteling (.vtt bestand) gekoppeld aan de speler
             const sampleSubUrl = "https://gist.githubusercontent.com/alpert/4131580/raw/subtitles.vtt";
 
             videoContainer.innerHTML = `
                 <video id="active-video" width="100%" height="300" controls autoplay style="border-radius:4px; background:#000;">
                     <source src="${url}" type="video/mp4">
                     <track src="${sampleSubUrl}" kind="subtitles" srclang="${subLang}" label="Nederlands" default>
-                    Je browser ondersteunt geen video-element.
+                    Je browser ondersteunt dit videobestand niet of de stream-link wordt geblokkeerd.
                 </video>
             `;
 
             const videoEl = document.getElementById('active-video');
 
-            // Zorg ervoor dat de ondertiteling direct als actief (showing) wordt ingesteld
+            videoEl.onerror = () => {
+                videoEl.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
+                videoEl.load();
+                videoEl.play();
+            };
+
             videoEl.addEventListener('loadedmetadata', () => {
                 if (videoEl.textTracks && videoEl.textTracks[0]) {
                     videoEl.textTracks[0].mode = 'showing';
                 }
                 if (skipIntro) {
-                    videoEl.currentTime = 85; // Slaat automatisch intro/recap over
+                    videoEl.currentTime = 85;
                 }
             });
         }
