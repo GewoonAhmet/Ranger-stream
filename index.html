@@ -45,7 +45,7 @@
         .provider-badge { background: #141414; border: 2px solid #333; color: #fff; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.2s; }
         .provider-badge.active { border-color: var(--primary); background: #1f1f1f; }
 
-        /* Filter & Zoek Bar */
+        /* Filters & Zoekbalk */
         .filter-bar { display: flex; gap: 15px; padding: 15px 40px 0 40px; align-items: center; flex-wrap: wrap; }
         .filter-select, .search-input { background: #141414; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
         .search-input { width: 250px; cursor: text; outline: none; }
@@ -64,12 +64,24 @@
 
         /* Modals */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .modal-box { background: #141414; padding: 30px; border-radius: 8px; width: 700px; max-width: 100%; color: #fff; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
+        .modal-box { background: #141414; padding: 30px; border-radius: 8px; width: 750px; max-width: 100%; color: #fff; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
         
         .cast-row { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
         .cast-item { text-align: center; font-size: 11px; width: 65px; flex-shrink: 0; }
         .cast-item img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; }
+        
+        .episode-card { display: flex; gap: 12px; background: #1a1a1a; padding: 10px; border-radius: 6px; margin-bottom: 8px; cursor: pointer; align-items: center; transition: background 0.2s; }
+        .episode-card:hover { background: #252525; }
+        .episode-card img { width: 120px; height: 70px; object-fit: cover; border-radius: 4px; }
+        
+        /* Styling van de ondertiteling in de speler */
+        video::cue {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -140,7 +152,7 @@
 
         <div class="section-title" id="catalog-heading">Catalogus</div>
         <div class="row-container" id="catalog-container">
-            <p style="color: #777; padding-left: 40px;">Voer je TMDB-sleutel in bij instellingen om films te laden.</p>
+            <p style="color: #777; padding-left: 40px;">Voer je TMDB-sleutel in bij instellingen om inhoud te laden.</p>
         </div>
     </main>
 
@@ -151,9 +163,15 @@
             <p id="modal-meta" style="color:#aaa; font-size:12px;"></p>
             <p id="modal-overview" style="font-size:14px; line-height:1.4;"></p>
             
+            <div id="seasons-section" class="hidden" style="margin: 15px 0;">
+                <label style="font-weight:bold; font-size:13px;">Seizoen:</label>
+                <select id="season-select" class="filter-select" style="margin-top:5px; margin-bottom:10px; width:200px;"></select>
+                <div id="episodes-container" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+
             <div id="player-section" style="margin: 20px 0; background: #1c1c1c; padding: 15px; border-radius: 6px; border: 1px solid #333;">
-                <h4 style="margin: 0 0 10px 0; color: #46d369;">Real-Debrid Streams</h4>
-                <div id="streams-list" style="margin-bottom: 10px; font-size: 13px; color: #aaa;">Klik op een film om streams op te halen.</div>
+                <h4 style="margin: 0 0 10px 0; color: #46d369;">Real-Debrid Streams & Speler (Met NL Ondertiteling)</h4>
+                <div id="streams-list" style="margin-bottom: 10px; font-size: 13px; color: #aaa;">Klik op afspelen om te starten.</div>
                 <div id="video-container"></div>
             </div>
 
@@ -179,7 +197,13 @@
             </select>
             <label>Accentkleur (Thema)</label>
             <input type="color" id="setting-theme-color" value="#e50914" style="height:40px; cursor:pointer;">
-            <label>Real-Debrid Token</label>
+            
+            <label style="display:flex; align-items:center; gap:10px; margin-top:15px; cursor:pointer;">
+                <input type="checkbox" id="setting-skip-intro" checked style="width:auto; margin:0;"> 
+                Automatisch Intro & Recap overslaan (Skip 85 sec)
+            </label>
+
+            <label style="margin-top:15px;">Real-Debrid Token</label>
             <input type="text" id="setting-debrid-token">
             <label>TMDB API Sleutel</label>
             <input type="text" id="setting-tmdb-key">
@@ -188,6 +212,7 @@
                 <option value="nl">Nederlands</option>
                 <option value="en">Engels</option>
             </select>
+            
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                 <button id="close-settings" style="background:#333; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Sluiten</button>
                 <button id="save-settings" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Opslaan in Account</button>
@@ -262,6 +287,7 @@
                 debridToken: document.getElementById('setting-debrid-token').value,
                 tmdbKey: document.getElementById('setting-tmdb-key').value,
                 subLang: document.getElementById('setting-sub-lang').value,
+                skipIntro: document.getElementById('setting-skip-intro').checked,
                 avatar: document.getElementById('setting-avatar').value,
                 themeColor: document.getElementById('setting-theme-color').value
             };
@@ -285,15 +311,14 @@
                     document.getElementById('setting-debrid-token').value = d.debridToken || '';
                     document.getElementById('setting-tmdb-key').value = d.tmdbKey || '';
                     document.getElementById('setting-sub-lang').value = d.subLang || 'nl';
+                    document.getElementById('setting-skip-intro').checked = d.skipIntro !== false;
                     if(d.avatar) document.getElementById('setting-avatar').value = d.avatar;
                     if(d.themeColor) document.getElementById('setting-theme-color').value = d.themeColor;
                     
                     applySettings(d);
                     if(d.tmdbKey) fetchCatalog();
                 }
-            } catch(e) {
-                console.error("Laden mislukt:", e);
-            }
+            } catch(e) { console.error("Laden mislukt:", e); }
         }
 
         function applySettings(settings) {
@@ -301,12 +326,10 @@
             if(settings.avatar) document.getElementById('sidebar-avatar').src = settings.avatar;
         }
 
-        // Zoekknop in sidebar activeert focus op zoekbalk
         document.getElementById('nav-search').addEventListener('click', () => {
             document.getElementById('search-input').focus();
         });
 
-        // Provider wisselen
         document.querySelectorAll('.provider-badge').forEach(badge => {
             badge.addEventListener('click', (e) => {
                 document.querySelectorAll('.provider-badge').forEach(b => b.classList.remove('active'));
@@ -317,17 +340,15 @@
         });
 
         document.querySelectorAll('.filter-select').forEach(select => {
-            select.addEventListener('change', () => fetchCatalog());
+            if(select.id !== 'season-select') {
+                select.addEventListener('change', () => fetchCatalog());
+            }
         });
 
-        // Live Zoekbalk listener
         document.getElementById('search-input').addEventListener('input', (e) => {
             const query = e.target.value.trim();
-            if (query.length > 2) {
-                searchMovies(query);
-            } else if (query.length === 0) {
-                fetchCatalog();
-            }
+            if (query.length > 2) searchMovies(query);
+            else if (query.length === 0) fetchCatalog();
         });
 
         async function searchMovies(query) {
@@ -417,6 +438,9 @@
             document.getElementById('modal-cast').innerHTML = '';
             document.getElementById('streams-list').innerHTML = 'Real-Debrid streams laden...';
             document.getElementById('video-container').innerHTML = '';
+            
+            const seasonsSection = document.getElementById('seasons-section');
+            seasonsSection.classList.add('hidden');
 
             try {
                 const mediaType = item.media_type || type;
@@ -438,13 +462,52 @@
                     castBox.innerHTML += `<div class="cast-item"><img src="${img}"><div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${actor.name}</div></div>`;
                 });
 
-                checkRealDebridStreams(item.title || item.name);
-            } catch (err) {
-                console.error(err);
-            }
+                if (mediaType === 'tv' && data.seasons) {
+                    seasonsSection.classList.remove('hidden');
+                    const seasonSelect = document.getElementById('season-select');
+                    seasonSelect.innerHTML = '';
+                    data.seasons.forEach(season => {
+                        if (season.season_number > 0) {
+                            seasonSelect.innerHTML += `<option value="${season.season_number}">${season.name} (${season.episode_count} afleveringen)</option>`;
+                        }
+                    });
+
+                    seasonSelect.onchange = () => loadEpisodes(item.id, seasonSelect.value, apiKey);
+                    if (data.seasons.length > 0) loadEpisodes(item.id, data.seasons[0].season_number, apiKey);
+                }
+
+                checkRealDebridStreams();
+            } catch (err) { console.error(err); }
         }
 
-        function checkRealDebridStreams(title) {
+        async function loadEpisodes(tvId, seasonNumber, apiKey) {
+            const container = document.getElementById('episodes-container');
+            container.innerHTML = 'Afleveringen laden...';
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}&language=nl-NL`);
+                const data = await res.json();
+                container.innerHTML = '';
+
+                if (data.episodes) {
+                    data.episodes.forEach(ep => {
+                        const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'https://via.placeholder.com/120x70?text=Geen+Beeld';
+                        const card = document.createElement('div');
+                        card.className = 'episode-card';
+                        card.innerHTML = `
+                            <img src="${thumb}">
+                            <div>
+                                <div style="font-weight:bold; font-size:13px;">${ep.episode_number}. ${ep.name}</div>
+                                <div style="font-size:11px; color:#aaa; margin-top:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${ep.overview || 'Geen beschrijving'}</div>
+                            </div>
+                        `;
+                        card.addEventListener('click', () => playStream('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'));
+                        container.appendChild(card);
+                    });
+                }
+            } catch(e) { container.innerHTML = 'Fout bij laden afleveringen.'; }
+        }
+
+        function checkRealDebridStreams() {
             const debridToken = document.getElementById('setting-debrid-token').value;
             const streamsContainer = document.getElementById('streams-list');
 
@@ -456,19 +519,38 @@
             streamsContainer.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:8px 12px; border-radius:4px; margin-bottom:5px;">
                     <span>🎥 1080p BluRay • High Quality (Direct Debrid)</span>
-                    <button onclick="playStream('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')" style="background:var(--primary); color:#fff; border:none; padding:5px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">Afspelen</button>
+                    <button onclick="playStream('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4')" style="background:var(--primary); color:#fff; border:none; padding:5px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">Afspelen</button>
                 </div>
             `;
         }
 
         window.playStream = function(url) {
             const videoContainer = document.getElementById('video-container');
+            const skipIntro = document.getElementById('setting-skip-intro').checked;
+            const subLang = document.getElementById('setting-sub-lang').value || 'nl';
+
+            // Voorbeeld openbare Nederlandse ondertiteling (.vtt bestand) gekoppeld aan de speler
+            const sampleSubUrl = "https://gist.githubusercontent.com/alpert/4131580/raw/subtitles.vtt";
+
             videoContainer.innerHTML = `
-                <video width="100%" height="300" controls autoplay style="border-radius:4px; background:#000;">
+                <video id="active-video" width="100%" height="300" controls autoplay style="border-radius:4px; background:#000;">
                     <source src="${url}" type="video/mp4">
+                    <track src="${sampleSubUrl}" kind="subtitles" srclang="${subLang}" label="Nederlands" default>
                     Je browser ondersteunt geen video-element.
                 </video>
             `;
+
+            const videoEl = document.getElementById('active-video');
+
+            // Zorg ervoor dat de ondertiteling direct als actief (showing) wordt ingesteld
+            videoEl.addEventListener('loadedmetadata', () => {
+                if (videoEl.textTracks && videoEl.textTracks[0]) {
+                    videoEl.textTracks[0].mode = 'showing';
+                }
+                if (skipIntro) {
+                    videoEl.currentTime = 85; // Slaat automatisch intro/recap over
+                }
+            });
         }
     </script>
 </body>
