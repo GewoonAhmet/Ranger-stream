@@ -1,205 +1,231 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Nuvio - Streaming Hub</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    :root { --accent: #e50914; --bg-color: #0f1014; --card-bg: #1a1c23; --border-color: #2a2d3a; --text-color: #ffffff; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; }
-    .panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #111; color: #fff; box-sizing: border-box; }
-    button { padding: 10px 20px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-    
-    .network-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-    .network-scroll::-webkit-scrollbar { display: none; }
-    .network-btn { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 8px; padding: 15px 25px; min-width: 120px; text-align: center; cursor: pointer; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; }
-    .network-btn.active { border-color: var(--accent); background: rgba(229, 9, 20, 0.1); }
-    
-    .filter-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
-    .type-toggles { display: flex; gap: 5px; }
-    .type-toggles button { background: transparent; border: 1px solid var(--border-color); color: #aaa; padding: 8px 16px; width: auto; margin: 0; }
-    .type-toggles button.active { background: #333; color: #fff; border-color: #555; }
-    
-    .search-bar { display: flex; gap: 10px; flex-grow: 1; max-width: 300px; }
-    .search-bar input { margin-bottom: 0; padding: 8px; }
-    .search-bar button { width: auto; margin: 0; padding: 8px 15px; }
-
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-    .card { background: var(--card-bg); border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); transition: 0.2s; }
-    .card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .card img { width: 100%; height: 210px; object-fit: cover; }
-    .card-body { padding: 10px; font-size: 12px; }
-    
-    .status-text { font-size: 12px; color: #aaa; margin: 10px 0; }
-    h1 { color: var(--accent); margin: 0 0 20px 0; }
-    #appContent { display: none; }
-    #loginPanel { max-width: 400px; margin: 50px auto; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranger Stream</title>
+    <style>
+        body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .hidden { display: none !important; }
+        #auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .auth-box { background: #141414; padding: 40px; border-radius: 8px; width: 350px; border: 1px solid #333; }
+        .auth-box h2 { color: #e50914; margin-bottom: 20px; }
+        .auth-box input { width: 100%; padding: 10px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        .auth-box button { width: 100%; padding: 10px; background: #e50914; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        
+        #app-container { padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 20px; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav-tabs button { background: #1f1f1f; color: #fff; border: 1px solid #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .nav-tabs button.active { background: #e50914; border-color: #e50914; }
+        
+        #catalog-container { display: flex; flex-wrap: wrap; gap: 20px; }
+        
+        /* Modal */
+        #settings-modal { display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #141414; padding: 30px; border-radius: 8px; width: 400px; color: #fff; border: 1px solid #333; }
+        .modal-content input, .modal-content select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 
-  <div id="loginPanel" class="panel">
-    <h1>Nuvio Login</h1>
-    <input type="email" id="email" placeholder="E-mailadres">
-    <input type="password" id="password" placeholder="Wachtwoord">
-    <button id="btnLogin">Inloggen</button>
-    <button id="btnReg" style="background: #333;">Account Aanmaken</button>
-    <div id="authStatus" class="status-text"></div>
-  </div>
-
-  <div id="appContent">
-    <div class="panel">
-      <h1 id="userGreeting" style="margin-bottom:10px;">Nuvio</h1>
-      <input type="password" id="rdToken" placeholder="Real-Debrid API Token" style="max-width:300px;">
-      <button id="btnSaveToken" style="max-width:150px;">Token Opslaan</button>
+    <!-- Inlog / Registratie Scherm -->
+    <div id="auth-container">
+        <div class="auth-box">
+            <h2>Ranger Login</h2>
+            <input type="email" id="auth-email" placeholder="E-mailadres">
+            <input type="password" id="auth-password" placeholder="Wachtwoord">
+            <button id="btn-login">Inloggen</button>
+            <button id="btn-signup" style="background: #333;">Account Aanmaken</button>
+            <p id="auth-error" style="color: #e50914; font-size: 13px;"></p>
+        </div>
     </div>
 
-    <div class="network-scroll" id="networkContainer">
-      <div class="network-btn active" onclick="setNetwork(8, this)">Netflix</div>
-      <div class="network-btn" onclick="setNetwork(337, this)">Disney+</div>
-      <div class="network-btn" onclick="setNetwork(384, this)">HBO Max</div>
-      <div class="network-btn" onclick="setNetwork(531, this)">Paramount+</div>
-      <div class="network-btn" onclick="setNetwork(9, this)">Prime Video</div>
+    <!-- Hoofdapplicatie -->
+    <div id="app-container" class="hidden">
+        <header>
+            <h1 id="welcome-user" style="color: #e50914; margin:0;">Welkom</h1>
+            <button id="open-settings" style="background: #333; color: #fff; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px;">Instellingen</button>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="active" onclick="switchProvider('Netflix')">Netflix</button>
+            <button onclick="switchProvider('Disney+')">Disney+</button>
+            <button onclick="switchProvider('HBO Max')">HBO Max</button>
+            <button onclick="switchProvider('Prime Video')">Prime Video</button>
+        </div>
+
+        <div id="catalog-container">
+            <p style="color: #888;">Voer je TMDB API-sleutel in bij de instellingen om de catalogus te laden.</p>
+        </div>
     </div>
 
-    <div class="filter-row">
-      <div class="type-toggles">
-        <button class="active" id="btnMovie" onclick="setType('movie')">Films</button>
-        <button id="btnTv" onclick="setType('tv')">Series</button>
-      </div>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Zoek in collectie...">
-        <button onclick="executeSearch()">Zoek</button>
-      </div>
+    <!-- Instellingen Modal (Cloud-sync) -->
+    <div id="settings-modal">
+        <div class="modal-content">
+            <h3>Cloud Instellingen</h3>
+            <label>Real-Debrid Token</label>
+            <input type="text" id="setting-debrid-token">
+
+            <label>TMDB API Sleutel (voor catalogus)</label>
+            <input type="text" id="setting-tmdb-key">
+
+            <label>Ondertiteling Taal</label>
+            <select id="setting-sub-lang">
+                <option value="nl">Nederlands</option>
+                <option value="en">Engels</option>
+            </select>
+
+            <label>Ondertiteling Grootte (px)</label>
+            <input type="number" id="setting-sub-size" value="20">
+
+            <label>Ondertiteling Kleur</label>
+            <input type="color" id="setting-sub-color" value="#ffffff">
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button id="close-settings" style="background: #444; width: auto; padding: 8px 15px;">Sluiten</button>
+                <button id="save-settings" style="background: #e50914; width: auto; padding: 8px 15px;">Opslaan in Account</button>
+            </div>
+        </div>
     </div>
 
-    <div id="actionStatus" class="status-text">Catalogus laden...</div>
-    <div id="grid" class="grid"></div>
-  </div>
+    <!-- Firebase & App Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl6QqV0S0WahW2YrnjgTd56jHfg2w5arI",
+            authDomain: "streamhub-58d45.firebaseapp.com",
+            projectId: "streamhub-58d45",
+            storageBucket: "streamhub-58d45.appspot.com",
+            messagingSenderId: "49615308081",
+            appId: "1:49615308081:web:da2fac1d841239d34f5c10"
+        };
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
-    from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBl6QqV0S0WahW2YrnjgTd56jHfg2w5arI",
-      authDomain: "streamhub-58d45.firebaseapp.com",
-      projectId: "streamhub-58d45",
-      storageBucket: "streamhub-58d45.firebasestorage.app",
-      messagingSenderId: "49615308081",
-      appId: "1:49615308081:web:da2fac1d841239d34f5c10"
-    };
+        let currentUser = null;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMzJhZTJhODg5MTU4OTY3YWUxZjBhNjc4Mzg4YWFiOSIsInN1YiI6IjY1ZGFkMGY3OWM3MmM3MDE4NjhlMjAyYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.v4sU62Xb3fXN_T5A_I4QG6C9Fm2E8E_6G2M8F";
+        // Auth acties
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                document.getElementById('auth-error').innerText = err.message;
+            }
+        });
 
-    let currentNetwork = 8;
-    let currentType = 'movie';
+        document.getElementById('btn-signup').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                document.getElementById('auth-error').innerText = err.message;
+            }
+        });
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('loginPanel').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-        document.getElementById('userGreeting').innerText = `Welkom, ${user.email.split('@')[0]}`;
-        const savedToken = localStorage.getItem('rdToken');
-        if (savedToken) document.getElementById('rdToken').value = savedToken;
-        loadCatalog();
-      } else {
-        document.getElementById('loginPanel').style.display = 'block';
-        document.getElementById('appContent').style.display = 'none';
-      }
-    });
+        // Auth state monitor
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                document.getElementById('welcome-user').innerText = `Welkom, ${user.email.split('@')[0]}`;
+                await loadUserSettings(user.uid);
+            } else {
+                currentUser = null;
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            }
+        });
 
-    document.getElementById('btnReg').onclick = () => {
-      createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
-        .catch(err => document.getElementById('authStatus').innerText = err.message);
-    };
-    document.getElementById('btnLogin').onclick = () => {
-      signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
-        .catch(err => document.getElementById('authStatus').innerText = 'Inloggen mislukt.');
-    };
-    document.getElementById('btnSaveToken').onclick = () => {
-      localStorage.setItem('rdToken', document.getElementById('rdToken').value);
-      alert('Real-Debrid token opgeslagen.');
-    };
+        // Modal besturing
+        const modal = document.getElementById('settings-modal');
+        document.getElementById('open-settings').addEventListener('click', () => modal.style.display = 'flex');
+        document.getElementById('close-settings').addEventListener('click', () => modal.style.display = 'none');
 
-    window.setNetwork = (id, element) => {
-      currentNetwork = id;
-      document.querySelectorAll('.network-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
-      document.getElementById('searchInput').value = '';
-      loadCatalog();
-    };
+        // Instellingen opslaan in Firestore (Cloud)
+        document.getElementById('save-settings').addEventListener('click', async () => {
+            if (!currentUser) return;
+            const settings = {
+                debridToken: document.getElementById('setting-debrid-token').value,
+                tmdbKey: document.getElementById('setting-tmdb-key').value,
+                subLang: document.getElementById('setting-sub-lang').value,
+                subSize: document.getElementById('setting-sub-size').value,
+                subColor: document.getElementById('setting-sub-color').value
+            };
 
-    window.setType = (type) => {
-      currentType = type;
-      document.getElementById('btnMovie').classList.toggle('active', type === 'movie');
-      document.getElementById('btnTv').classList.toggle('active', type === 'tv');
-      document.getElementById('searchInput').value = '';
-      loadCatalog();
-    };
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), settings, { merge: true });
+                modal.style.display = 'none';
+                alert('Instellingen opgeslagen in je account.');
+                if (settings.tmdbKey) fetchCatalog(settings.tmdbKey);
+            } catch (err) {
+                console.error("Opslaan mislukt:", err);
+            }
+        });
 
-    window.executeSearch = () => {
-      const query = document.getElementById('searchInput').value;
-      if (!query) return loadCatalog();
-      document.getElementById('actionStatus').innerText = 'Zoeken...';
-      fetch(`https://api.themoviedb.org/3/search/${currentType}?query=${encodeURIComponent(query)}&language=nl-NL`, {
-        headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
-      })
-      .then(res => res.json())
-      .then(data => renderGrid(data.results))
-      .catch(() => document.getElementById('actionStatus').innerText = 'Zoekfout.');
-    };
+        // Instellingen laden uit Firestore
+        async function loadUserSettings(uid) {
+            try {
+                const docSnap = await getDoc(doc(db, "users", uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('setting-debrid-token').value = data.debridToken || '';
+                    document.getElementById('setting-tmdb-key').value = data.tmdbKey || '';
+                    document.getElementById('setting-sub-lang').value = data.subLang || 'nl';
+                    document.getElementById('setting-sub-size').value = data.subSize || '20';
+                    document.getElementById('setting-sub-color').value = data.subColor || '#ffffff';
 
-    function loadCatalog() {
-      document.getElementById('actionStatus').innerText = 'Catalogus ophalen...';
-      const url = `https://api.themoviedb.org/3/discover/${currentType}?language=nl-NL&sort_by=popularity.desc&watch_region=NL&with_watch_providers=${currentNetwork}`;
-      
-      fetch(url, { headers: { Authorization: `Bearer ${TMDB_TOKEN}` } })
-        .then(res => res.json())
-        .then(data => renderGrid(data.results))
-        .catch(() => document.getElementById('actionStatus').innerText = 'Fout bij laden.');
-    }
+                    if (data.tmdbKey) {
+                        fetchCatalog(data.tmdbKey);
+                    }
+                }
+            } catch (err) {
+                console.error("Laden mislukt:", err);
+            }
+        }
 
-    function renderGrid(items) {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      
-      if (!items || items.length === 0) {
-        document.getElementById('actionStatus').innerText = 'Geen titels gevonden.';
-        return;
-      }
+        // TMDB Catalogus ophalen
+        window.fetchCatalog = async function(apiKey) {
+            const container = document.getElementById('catalog-container');
+            container.innerHTML = '<p style="color:#aaa;">Catalogus laden...</p>';
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}&language=nl-NL`);
+                const data = await res.json();
+                if (data.results) {
+                    container.innerHTML = '';
+                    data.results.forEach(item => {
+                        const title = item.title || item.name;
+                        const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=Geen+Poster';
+                        
+                        const card = document.createElement('div');
+                        card.style.cssText = 'width: 150px; cursor: pointer; background: #1f1f1f; border-radius: 6px; overflow: hidden;';
+                        card.innerHTML = `
+                            <img src="${poster}" style="width: 100%; height: 225px; object-fit: cover;">
+                            <div style="padding: 10px; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Fout bij ophalen TMDB data. Controleer je sleutel.</p>';
+            }
+        };
 
-      document.getElementById('actionStatus').innerText = `${items.length} titels geladen.`;
-
-      items.forEach(item => {
-        const title = item.title || item.name;
-        const year = (item.release_date || item.first_air_date || '').substring(0, 4);
-        const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/140x210?text=Geen+Afbeelding';
-        
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${poster}" alt="${title}">
-          <div class="card-body">
-            <b>${title}</b>
-            <div style="color:#aaa; margin-top:4px;">${year}</div>
-          </div>
-        `;
-        card.onclick = () => alert(`Geselecteerd: ${title}`);
-        grid.appendChild(card);
-      });
-    }
-  </script>
+        window.switchProvider = function(provider) {
+            document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            const tmdbKey = document.getElementById('setting-tmdb-key').value;
+            if (tmdbKey) fetchCatalog(tmdbKey);
+        };
+    </script>
 </body>
 </html>
