@@ -1,0 +1,20 @@
+{
+  "name": "Nuvio Stream",
+  "short_name": "Nuvio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1014",
+  "theme_color": "#e50914",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/e50914/ffffff?text=N",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/e50914/ffffff?text=N",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
